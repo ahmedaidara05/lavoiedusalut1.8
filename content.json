@@ -1,0 +1,49 @@
+{
+    "title": {
+        "fr": "L'Héritage des Étoiles",
+        "en": "The Legacy of the Stars",
+        "ar": "إرث النجوم"
+    },
+    "chapters": [
+        {
+            "id": 1,
+            "title": {
+                "fr": "Le Premier Éveil",
+                "en": "The First Awakening",
+                "ar": "الصحوة الأولى"
+            },
+            "content": {
+                "fr": "Dans les confins de la galaxie d'Andromède, un vaisseau oublié dérivait parmi les étoiles. À bord, une jeune femme nommée Élara ouvrit les yeux pour la première fois depuis des siècles. Ses souvenirs étaient flous, mais une mission résonnait dans son esprit : trouver la Clé Stellaire, une relique capable de sauver ou de détruire l'univers.",
+                "en": "In the far reaches of the Andromeda galaxy, a forgotten ship drifted among the stars. On board, a young woman named Elara opened her eyes for the first time in centuries. Her memories were hazy, but a mission echoed in her mind: find the Stellar Key, a relic capable of saving or destroying the universe.",
+                "ar": "في أعماق مجرة أندروميدا، كان سفينة منسية تطفو بين النجوم. على متنها، فتحت امرأة شابة تُدعى إيلارا عينيها لأول مرة منذ قرون. كانت ذكرياتها ضبابية، لكن مهمة كانت تتردد في ذهنها: العثور على المفتاح النجمي، وهو أثر قادر على إنقاذ الكون أو تدميره."
+            }
+        },
+        {
+            "id": 2,
+            "title": {
+                "fr": "Les Ombres du Passé",
+                "en": "Shadows of the Past",
+                "ar": "ظلال الماضي"
+            },
+            "content": {
+                "fr": "Élara découvrit des enregistrements holographiques dans le vaisseau, révélant une guerre ancienne entre les Gardiens des Étoiles et les Ombres. Chaque indice la rapprochait de la Clé, mais aussi d'un danger grandissant.",
+                "en": "Elara uncovered holographic records in the ship, revealing an ancient war between the Star Guardians and the Shadows. Each clue brought her closer to the Key, but also to a growing danger.",
+                "ar": "اكتشفت إيلارا تسجيلات هولوغرافية في السفينة، كشفت عن حرب قديمة بين حراس النجوم والظلال. كل دليل كان يقربها من المفتاح، ولكن أيضًا من خطر متزايد."
+            }
+        },
+        {
+            "id": 3,
+            "title": {
+                "fr": "L'Appel des Étoiles",
+                "en": "The Call of the Stars",
+                "ar": "نداء النجوم"
+            },
+            "content": {
+                "fr": "Guidée par un signal mystérieux, Élara pilota le vaisseau vers une planète inconnue. Là, elle rencontra un être luminescent qui lui parla de l'Héritage des Étoiles, une vérité cachée depuis des millénaires.",
+                "en": "Guided by a mysterious signal, Elara piloted the ship to an unknown planet. There, she met a luminous being who spoke of the Legacy of the Stars, a truth hidden for millennia.",
+                "ar": "بمساعدة إشارة غامضة، قادت إيلارا السفينة إلى كوكب مجهول. هناك، التقت بكائن مضيء تحدث عن إرث النجوم، حقيقة مخفية منذ آلاف السنين."
+            }
+        }
+        // Ajoutez les chapitres 4 à 44 ici avec le même format
+    ]
+}
