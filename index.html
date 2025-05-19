@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'Héritage des Étoiles - Lecture</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Page d'accueil -->
+    <div id="home-page" class="page active">
+        <div class="hero">
+            <div class="hero-content">
+                <h1 class="golden-title">L'Héritage des Étoiles</h1>
+                <p>Plongez dans une aventure épique à travers les galaxies, où le destin de l'univers repose sur un seul choix.</p>
+                <button id="start-btn" class="btn">Commencer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Sommaire -->
+    <div id="summary-page" class="page">
+        <h1 class="golden-title">Sommaire</h1>
+        <div class="chapter-list" id="chapter-list"></div>
+    </div>
+
+    <!-- Page Lecture -->
+    <div id="reading-page" class="page">
+        <div class="reading-toolbar">
+            <button id="theme-toggle">Mode Sombre</button>
+            <select id="language-select">
+                <option value="fr">Français</option>
+                <option value="en">English</option>
+                <option value="ar">العربية</option>
+            </select>
+            <button id="zoom-in">Zoom +</button>
+            <button id="zoom-out">Zoom -</button>
+            <select id="voice-select">
+                <option value="voice1">Voix 1</option>
+                <option value="voice2">Voix 2</option>
+                <option value="voice3">Voix 3</option>
+                <option value="voice4">Voix 4</option>
+            </select>
+            <button id="read-aloud">Lire à voix haute</button>
+            <button id="favorite-btn">❤️</button>
+            <button id="auto-scroll">Auto-scroll</button>
+        </div>
+        <div id="chapter-content" class="chapter-content"></div>
+    </div>
+
+    <!-- Page Favoris -->
+    <div id="favorites-page" class="page">
+        <h1 class="golden-title">Favoris</h1>
+        <div id="favorites-list" class="chapter-list"></div>
+    </div>
+
+    <!-- Page Paramètres -->
+    <div id="settings-page" class="page">
+        <button id="back-btn" class="back-btn">← Retour</button>
+        <div class="user-profile">
+            <img id="user-photo" src="https://via.placeholder.com/100" alt="Photo de profil">
+            <h2 id="user-name">Utilisateur</h2>
+        </div>
+        <div class="settings-content">
+            <h3 class="golden-title">Paramètres</h3>
+            <div class="setting-item">
+                <label>Connexion/Inscription</label>
+                <input type="text" id="username" placeholder="Nom d'utilisateur">
+                <input type="password" id="password" placeholder="Mot de passe">
+                <button id="login-btn">Connexion</button>
+                <button id="signup-btn">Inscription</button>
+            </div>
+            <div class="setting-item">
+                <label>Mode</label>
+                <button id="theme-toggle-settings">Mode Sombre</button>
+            </div>
+            <div class="setting-item">
+                <label>Langue</label>
+                <select id="language-select-settings">
+                    <option value="fr">Français</option>
+                    <option value="en">English</option>
+                    <option value="ar">العربية</option>
+                </select>
+            </div>
+            <div class="setting-item">
+                <label>Zoom</label>
+                <button id="zoom-in-settings">Zoom +</button>
+                <button id="zoom-out-settings">Zoom -</button>
+            </div>
+            <div class="setting-item">
+                <h3 class="golden-title">À propos</h3>
+                <p>Pour plus d'informations, contactez-nous :</p>
+                <div class="social-links">
+                    <a href="#" class="social-icon"><img src="facebook-icon.png" alt="Facebook"></a>
+                    <a href="#" class="social-icon"><img src="twitter-icon.png" alt="Twitter"></a>
+                    <a href="#" class="social-icon"><img src="instagram-icon.png" alt="Instagram"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barre de navigation -->
+    <div class="bottom-nav">
+        <button data-page="summary-page">Sommaire</button>
+        <button data-page="reading-page">Lecture</button>
+        <button data-page="favorites-page">Favoris</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
