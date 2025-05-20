@@ -3,178 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Livre d'Or - Lecture Sécurisée</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <!-- Page d'accueil -->
-    <div id="home-page" class="page active">
-        <div class="home-overlay"></div>
-        <div class="home-content">
-            <h1 class="gold-title">Livre d'Or</h1>
-            <p class="home-description">Découvrez une histoire captivante à travers 44 chapitres passionnants. Plongez dans un univers unique où chaque page vous réserve des surprises.</p>
-            <button id="start-button" class="modern-button">COMMENCER</button>
-        </div>
-    </div>
-
-    <!-- Page de sommaire -->
-    <div id="toc-page" class="page">
-        <div class="header">
-            <h1 class="gold-title">Sommaire</h1>
-        </div>
-        <div class="chapters-list">
-            <!-- Les 44 chapitres seront générés dynamiquement -->
-        </div>
-    </div>
-
-    <!-- Page de lecture -->
-    <div id="reading-page" class="page">
-        <div class="reading-toolbar">
-            <button class="toolbar-btn back-btn"><i class="fas fa-arrow-left"></i></button>
-            <div class="toolbar-group">
-                <button class="toolbar-btn theme-btn"><i class="fas fa-moon"></i></button>
-                <button class="toolbar-btn zoom-in-btn"><i class="fas fa-search-plus"></i></button>
-                <button class="toolbar-btn zoom-out-btn"><i class="fas fa-search-minus"></i></button>
-                <button class="toolbar-btn voice-btn"><i class="fas fa-volume-up"></i></button>
-                <select class="voice-selector">
-                    <option value="1">Voix 1</option>
-                    <option value="2">Voix 2</option>
-                    <option value="3">Voix 3</option>
-                    <option value="4">Voix 4</option>
-                </select>
-                <button class="toolbar-btn favorite-btn"><i class="far fa-heart"></i></button>
-                <button class="toolbar-btn auto-scroll-btn"><i class="fas fa-arrow-down"></i></button>
-            </div>
-            <select class="language-selector">
-                <option value="fr">FR</option>
-                <option value="en">EN</option>
-                <option value="ar">AR</option>
-            </select>
-        </div>
-        <div class="chapter-content">
-            <h2 class="chapter-title gold-title"></h2>
-            <div class="chapter-text"></div>
-        </div>
-    </div>
-
-    <!-- Page des favoris -->
-    <div id="favorites-page" class="page">
-        <div class="header">
-            <h1 class="gold-title">Favoris</h1>
-        </div>
-        <div class="favorites-list">
-            <!-- Les chapitres favoris seront ajoutés dynamiquement -->
-            <p class="empty-favorites">Aucun chapitre favori pour le moment</p>
-        </div>
-    </div>
-
-    <!-- Page des paramètres -->
-    <div id="settings-page" class="page">
-        <div class="header">
-            <button class="back-btn"><i class="fas fa-arrow-left"></i></button>
-            <h1 class="gold-title">Paramètres</h1>
-        </div>
-        <div class="user-profile">
-            <div class="user-avatar">
-                <img id="user-avatar-img" src="https://via.placeholder.com/100" alt="Avatar">
-            </div>
-            <div class="user-info">
-                <h3 id="user-name">Invité</h3>
-            </div>
-        </div>
-        
-        <div class="settings-section">
-            <h3>Compte</h3>
-            <div id="auth-forms">
-                <div id="login-form">
-                    <input type="email" id="login-email" placeholder="Email">
-                    <input type="password" id="login-password" placeholder="Mot de passe">
-                    <button id="login-btn" class="auth-btn">Connexion</button>
-                    <p>Pas de compte? <a href="#" id="show-register">S'inscrire</a></p>
-                </div>
-                <div id="register-form" style="display: none;">
-                    <input type="text" id="register-name" placeholder="Nom">
-                    <input type="email" id="register-email" placeholder="Email">
-                    <input type="password" id="register-password" placeholder="Mot de passe">
-                    <input type="file" id="avatar-upload" accept="image/*">
-                    <button id="register-btn" class="auth-btn">S'inscrire</button>
-                    <p>Déjà un compte? <a href="#" id="show-login">Se connecter</a></p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="settings-section">
-            <h3>Préférences</h3>
-            <div class="preference-option">
-                <span>Mode sombre</span>
-                <label class="switch">
-                    <input type="checkbox" id="dark-mode-toggle">
-                    <span class="slider round"></span>
-                </label>
-            </div>
-            <div class="preference-option">
-                <span>Langue</span>
-                <select id="language-selector">
-                    <option value="fr">Français</option>
-                    <option value="en">English</option>
-                    <option value="ar">العربية</option>
-                </select>
-            </div>
-            <div class="preference-option">
-                <span>Taille du texte</span>
-                <div class="zoom-controls">
-                    <button id="zoom-out"><i class="fas fa-search-minus"></i></button>
-                    <span id="zoom-level">100%</span>
-                    <button id="zoom-in"><i class="fas fa-search-plus"></i></button>
-                </div>
-            </div>
-        </div>
-        
-        <div class="settings-section">
-            <h3>À propos</h3>
-            <button id="info-btn" class="about-btn"><i class="fas fa-info-circle"></i> Informations</button>
-            <button id="contact-btn" class="about-btn"><i class="fas fa-envelope"></i> Nous rejoindre</button>
-            <div class="social-icons">
-                <a href="#" class="social-icon"><i class="fab fa-facebook"></i></a>
-                <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
-                <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-                <a href="#" class="social-icon"><i class="fab fa-linkedin"></i></a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Barre de navigation -->
-    <div class="bottom-nav">
-        <button class="nav-btn" data-page="home-page"><i class="fas fa-home"></i></button>
-        <button class="nav-btn" data-page="toc-page"><i class="fas fa-list"></i></button>
-        <button class="nav-btn" data-page="reading-page" style="display: none;"><i class="fas fa-book"></i></button>
-        <button class="nav-btn" data-page="favorites-page"><i class="fas fa-heart"></i></button>
-        <button class="nav-btn" data-page="settings-page"><i class="fas fa-cog"></i></button>
-    </div>
-
-    <!-- Chat IA flottant -->
-    <div id="ai-chat-container" class="ai-chat-hidden">
-        <button id="ai-chat-toggle" class="ai-chat-btn"><i class="fas fa-robot"></i></button>
-        <div id="ai-chat-window">
-            <div id="ai-chat-header">
-                <span>Assistant de lecture</span>
-                <button id="ai-chat-close"><i class="fas fa-times"></i></button>
-            </div>
-            <div id="ai-chat-messages"></div>
-            <div id="ai-chat-input-container">
-                <input type="text" id="ai-chat-input" placeholder="Posez une question sur le livre...">
-                <button id="ai-chat-send"><i class="fas fa-paper-plane"></i></button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Scripts -->
+    <title>La Voie du Salut</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="https://via.placeholder.com/32x32?text=LVS" type="image/x-icon">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+</head>
+<body>
+    <div class="overlay"></div>
+
+    <section id="home-page" class="page active">
+        <div class="home-content">
+            <h1>Bienvenue sur La Voie du Salut</h1>
+            <p>Découvrez une histoire captivante, chapitre par chapitre.</p>
+            <button id="start-button" class="modern-button">COMMENCER</button>
+        </div>
+    </section>
+
+    <section id="sommaire-page" class="page">
+        <h2 class="gold-title">Sommaire</h2>
+        <div id="chapters-list">
+            </div>
+        <div class="chat-fab-container">
+            <button id="chat-fab" class="chat-fab">💬</button>
+        </div>
+    </section>
+
+    <section id="reading-page" class="page">
+        <div class="reading-header">
+            <span class="back-to-sommaire">Retour</span>
+            <div class="reading-controls">
+                <button id="theme-toggle" class="icon-button" title="Mode Sombre/Clair">💡</button>
+                <button id="lang-toggle" class="icon-button" title="Changer la langue">🌐</button>
+                <button id="zoom-in" class="icon-button" title="Zoom avant">➕</button>
+                <button id="zoom-out" class="icon-button" title="Zoom arrière">➖</button>
+                <button id="read-aloud-toggle" class="icon-button" title="Lecture à voix haute">🔊</button>
+                <button id="favorite-chapter" class="icon-button heart-button" title="Ajouter aux favoris">❤️</button>
+            </div>
+        </div>
+        <h2 id="reading-chapter-title" class="gold-title"></h2>
+        <div id="chapter-content" class="chapter-text" contenteditable="false">
+            </div>
+        <div class="scroll-controls">
+            <button id="scroll-up" class="icon-button" title="Défiler vers le haut">⬆️</button>
+            <button id="scroll-down" class="icon-button" title="Défiler vers le bas">⬇️</button>
+        </div>
+        <div class="chat-fab-container">
+            <button id="chat-fab-reading" class="chat-fab">💬</button>
+        </div>
+    </section>
+
+    <section id="favorites-page" class="page">
+        <h2 class="gold-title">Mes Favoris</h2>
+        <div id="favorites-list">
+            <p id="no-favorites-message" style="display: none;">Vous n'avez pas encore de chapitres favoris.</p>
+            </div>
+        <div class="chat-fab-container">
+            <button id="chat-fab-favorites" class="chat-fab">💬</button>
+        </div>
+    </section>
+
+    <section id="settings-page" class="page">
+        <div class="settings-header">
+            <button id="back-from-settings" class="icon-button back-arrow">←</button>
+            <h2 class="gold-title">Paramètres</h2>
+        </div>
+        <div class="user-profile">
+            <img id="user-photo" src="https://via.placeholder.com/80x80?text=User" alt="Photo de profil" class="profile-photo">
+            <span id="user-name">Invité</span>
+        </div>
+        <div class="settings-section">
+            <h3>Compte</h3>
+            <button id="login-register-button" class="settings-button">Connexion / Inscription</button>
+            <button id="logout-button" class="settings-button" style="display: none;">Déconnexion</button>
+            <button id="change-password-button" class="settings-button" style="display: none;">Changer le mot de passe</button>
+        </div>
+        <div class="settings-section">
+            <h3>Apparence</h3>
+            <div class="setting-item">
+                <span>Mode Sombre/Clair</span>
+                <button id="settings-theme-toggle" class="icon-button">💡</button>
+            </div>
+            <div class="setting-item">
+                <span>Langue</span>
+                <button id="settings-lang-toggle" class="icon-button">🌐</button>
+            </div>
+            <div class="setting-item">
+                <span>Zoom Texte</span>
+                <button id="settings-zoom-in" class="icon-button">➕</button>
+                <button id="settings-zoom-out" class="icon-button">➖</button>
+            </div>
+        </div>
+        <div class="settings-section">
+            <h3>À propos</h3>
+            <div class="setting-item">
+                <span>Informations</span>
+                <a href="#" class="icon-button" title="Informations">ℹ️</a>
+            </div>
+            <div class="setting-item">
+                <span>Nous Rejoindre</span>
+                <div class="social-icons">
+                    <a href="https://facebook.com" target="_blank" title="Facebook"><img src="https://img.icons8.com/ios-filled/24/000000/facebook-new.png" alt="Facebook"></a>
+                    <a href="https://twitter.com" target="_blank" title="Twitter"><img src="https://img.icons8.com/ios-filled/24/000000/twitter.png" alt="Twitter"></a>
+                    <a href="https://instagram.com" target="_blank" title="Instagram"><img src="https://img.icons8.com/ios-filled/24/000000/instagram-new.png" alt="Instagram"></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="chat-modal" class="chat-modal">
+        <div class="chat-modal-content">
+            <span class="close-chat">&times;</span>
+            <h3>Discutez avec l'IA</h3>
+            <div class="chat-history" id="chat-history">
+                </div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Posez votre question...">
+                <button id="send-chat-button">Envoyer</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="auth-modal" class="auth-modal">
+        <div class="auth-modal-content">
+            <span class="close-auth">&times;</span>
+            <h3 id="auth-title">Connexion</h3>
+            <form id="auth-form">
+                <input type="email" id="auth-email" placeholder="Email" required>
+                <input type="password" id="auth-password" placeholder="Mot de passe" required>
+                <button type="submit" id="auth-submit">Se connecter</button>
+                <p class="toggle-auth-mode">
+                    <span id="toggle-to-register">Pas encore de compte ? S'inscrire</span>
+                    <span id="toggle-to-login" style="display: none;">Déjà un compte ? Se connecter</span>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active" data-target="home-page">
+            <img src="https://img.icons8.com/ios-filled/24/000000/home.png" alt="Accueil">
+            <span>Accueil</span>
+        </a>
+        <a href="#" class="nav-item" data-target="sommaire-page">
+            <img src="https://img.icons8.com/ios-filled/24/000000/table-of-contents.png" alt="Sommaire">
+            <span>Sommaire</span>
+        </a>
+        <a href="#" class="nav-item" data-target="favorites-page">
+            <img src="https://img.icons8.com/ios-filled/24/000000/filled-heart.png" alt="Favoris">
+            <span>Favoris</span>
+        </a>
+        <a href="#" class="nav-item" data-target="settings-page">
+            <img src="https://img.icons8.com/ios-filled/24/000000/settings.png" alt="Paramètres">
+            <span>Paramètres</span>
+        </a>
+    </nav>
+
     <script src="script.js"></script>
 </body>
 </html>
