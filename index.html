@@ -6,6 +6,7 @@
     <title>L'Écho des Étoiles - Lecture</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="favicon.png">
 </head>
 <body oncontextmenu="return false" onselectstart="return false" ondragstart="return false" oncopy="return false" oncut="return false" onpaste="return false">
@@ -15,7 +16,7 @@
             <div class="hero-content">
                 <h1>L'Écho des Étoiles</h1>
                 <p>Plongez dans une aventure épique à travers les étoiles, où mystère, courage et destin s'entrelacent.</p>
-                <button onclick="navigate('chapters')">Commencer</button>
+                <button onclick="navigate('chapters')"><i class="fas fa-play"></i></button>
             </div>
         </div>
     </div>
@@ -34,13 +35,13 @@
                 <option value="en">Anglais</option>
                 <option value="ar">Arabe</option>
             </select>
-            <button id="theme-toggle">Mode Sombre</button>
-            <button id="zoom-in">+</button>
-            <button id="zoom-out">-</button>
-            <button id="read-aloud">Lecture à voix haute</button>
+            <button id="theme-toggle"><i class="fas fa-moon"></i></button>
+            <button id="zoom-in"><i class="fas fa-search-plus"></i></button>
+            <button id="zoom-out"><i class="fas fa-search-minus"></i></button>
+            <button id="read-aloud"><i class="fas fa-volume-up"></i></button>
             <select id="voice-select"></select>
-            <button id="favorite">❤️ Ajouter aux favoris</button>
-            <button id="auto-scroll">Auto-scroll</button>
+            <button id="favorite"><i class="fas fa-heart"></i></button>
+            <button id="auto-scroll"><i class="fas fa-scroll"></i></button>
         </div>
         <div class="chapter-content" id="chapter-content"></div>
     </div>
@@ -61,17 +62,17 @@
             <h3>Connexion / Inscription</h3>
             <input type="text" id="username" placeholder="Nom d'utilisateur">
             <input type="password" id="password" placeholder="Mot de passe">
-            <button onclick="login()">Connexion</button>
-            <button onclick="register()">Inscription</button>
+            <button onclick="login()"><i class="fas fa-sign-in-alt"></i></button>
+            <button onclick="register()"><i class="fas fa-user-plus"></i></button>
             <h3>Préférences</h3>
             <select id="settings-language">
                 <option value="fr">Français</option>
                 <option value="en">Anglais</option>
                 <option value="ar">Arabe</option>
             </select>
-            <button id="settings-theme">Mode Sombre</button>
-            <button id="settings-zoom-in">+</button>
-            <button id="settings-zoom-out">-</button>
+            <button id="settings-theme"><i class="fas fa-moon"></i></button>
+            <button id="settings-zoom-in"><i class="fas fa-search-plus"></i></button>
+            <button id="settings-zoom-out"><i class="fas fa-search-minus"></i></button>
             <h3>À propos</h3>
             <p>Rejoignez-nous sur les réseaux sociaux :</p>
             <div class="social-links">
@@ -80,14 +81,16 @@
                 <a href="YOUR_LINK"><img src="instagram-icon.png" alt="Instagram"></a>
             </div>
         </div>
-        <button class="back-button" onclick="navigateBack()">⬅ Retour</button>
+        <button class="back-button" onclick="navigateBack()"><i class="fas fa-arrow-left"></i></button>
     </div>
 
     <!-- Barre de navigation -->
     <div class="nav-bar">
-        <button onclick="navigate('chapters')">📚 Chapitres</button>
-        <button onclick="navigate('favorites')">❤️ Favoris</button>
-        <button onclick="navigate('settings')">⚙ Paramètres</button>
+        <button onclick="navigate('home')"><i class="fas fa-home"></i></button>
+        <button onclick="navigate('chapters')"><i class="fas fa-book"></i></button>
+        <button onclick="navigate('reading')"><i class="fas fa-book-open"></i></button>
+        <button onclick="navigate('favorites')"><i class="fas fa-heart"></i></button>
+        <button onclick="navigate('settings')"><i class="fas fa-cog"></i></button>
     </div>
 
     <script src="content.js"></script>
