@@ -3,112 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>L'Écho des Étoiles - Lecture</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>Livre d'Or - Lecture Sécurisée</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" type="image/png" href="favicon.png">
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body oncontextmenu="return false" onselectstart="return false" ondragstart="return false" oncopy="return false" oncut="return false" onpaste="return false">
+<body>
     <!-- Page d'accueil -->
-    <div class="page" id="home">
-        <div class="hero">
-            <div class="hero-content">
-                <h1>L'Écho des Étoiles</h1>
-                <p>Plongez dans une aventure épique à travers les étoiles, où mystère, courage et destin s'entrelacent.</p>
-                <button onclick="navigate('chapters')" class="start-button">COMMENCER</button>
-            </div>
+    <div id="home-page" class="page active">
+        <div class="home-overlay"></div>
+        <div class="home-content">
+            <h1 class="gold-title">Livre d'Or</h1>
+            <p class="home-description">Découvrez une histoire captivante à travers 44 chapitres passionnants. Plongez dans un univers unique où chaque page vous réserve des surprises.</p>
+            <button id="start-button" class="modern-button">COMMENCER</button>
         </div>
     </div>
 
-    <!-- Page des chapitres -->
-    <div class="page hidden" id="chapters">
-        <h1>Tableau des chapitres</h1>
-        <div class="chapter-list"></div>
+    <!-- Page de sommaire -->
+    <div id="toc-page" class="page">
+        <div class="header">
+            <h1 class="gold-title">Sommaire</h1>
+        </div>
+        <div class="chapters-list">
+            <!-- Les 44 chapitres seront générés dynamiquement -->
+        </div>
     </div>
 
     <!-- Page de lecture -->
-    <div class="page hidden" id="reading">
-        <div class="reading-header">
-            <select id="language">
-                <option value="fr">Français</option>
-                <option value="en">Anglais</option>
-                <option value="ar">Arabe</option>
+    <div id="reading-page" class="page">
+        <div class="reading-toolbar">
+            <button class="toolbar-btn back-btn"><i class="fas fa-arrow-left"></i></button>
+            <div class="toolbar-group">
+                <button class="toolbar-btn theme-btn"><i class="fas fa-moon"></i></button>
+                <button class="toolbar-btn zoom-in-btn"><i class="fas fa-search-plus"></i></button>
+                <button class="toolbar-btn zoom-out-btn"><i class="fas fa-search-minus"></i></button>
+                <button class="toolbar-btn voice-btn"><i class="fas fa-volume-up"></i></button>
+                <select class="voice-selector">
+                    <option value="1">Voix 1</option>
+                    <option value="2">Voix 2</option>
+                    <option value="3">Voix 3</option>
+                    <option value="4">Voix 4</option>
+                </select>
+                <button class="toolbar-btn favorite-btn"><i class="far fa-heart"></i></button>
+                <button class="toolbar-btn auto-scroll-btn"><i class="fas fa-arrow-down"></i></button>
+            </div>
+            <select class="language-selector">
+                <option value="fr">FR</option>
+                <option value="en">EN</option>
+                <option value="ar">AR</option>
             </select>
-            <button id="theme-toggle"><i class="fas fa-moon"></i></button>
-            <button id="zoom-in"><i class="fas fa-search-plus"></i></button>
-            <button id="zoom-out"><i class="fas fa-search-minus"></i></button>
-            <button id="read-aloud"><i class="fas fa-volume-up"></i></button>
-            <select id="voice-select"></select>
-            <button id="favorite"><i class="fas fa-heart"></i></button>
-            <button id="auto-scroll"><i class="fas fa-scroll"></i></button>
         </div>
-        <div class="chapter-content" id="chapter-content"></div>
+        <div class="chapter-content">
+            <h2 class="chapter-title gold-title"></h2>
+            <div class="chapter-text"></div>
+        </div>
     </div>
 
     <!-- Page des favoris -->
-    <div class="page hidden" id="favorites">
-        <h1>Favoris</h1>
-        <div class="favorite-list"></div>
+    <div id="favorites-page" class="page">
+        <div class="header">
+            <h1 class="gold-title">Favoris</h1>
+        </div>
+        <div class="favorites-list">
+            <!-- Les chapitres favoris seront ajoutés dynamiquement -->
+            <p class="empty-favorites">Aucun chapitre favori pour le moment</p>
+        </div>
     </div>
 
     <!-- Page des paramètres -->
-    <div class="page hidden" id="settings">
-        <div class="user-profile">
-            <img src="user-placeholder.png" alt="Photo de profil" id="user-photo">
-            <h2 id="user-name">Utilisateur</h2>
+    <div id="settings-page" class="page">
+        <div class="header">
+            <button class="back-btn"><i class="fas fa-arrow-left"></i></button>
+            <h1 class="gold-title">Paramètres</h1>
         </div>
-        <div class="settings-options">
-            <h3>Connexion / Inscription</h3>
-            <input type="text" id="username" placeholder="Nom d'utilisateur">
-            <input type="email" id="email" placeholder="Email">
-            <input type="password" id="password" placeholder="Mot de passe">
-            <button onclick="login()"><i class="fas fa-sign-in-alt"></i></button>
-            <button onclick="register()"><i class="fas fa-user-plus"></i></button>
-            <h3>Préférences</h3>
-            <select id="settings-language">
-                <option value="fr">Français</option>
-                <option value="en">Anglais</option>
-                <option value="ar">Arabe</option>
-            </select>
-            <button id="settings-theme"><i class="fas fa-moon"></i></button>
-            <button id="settings-zoom-in"><i class="fas fa-search-plus"></i></button>
-            <button id="settings-zoom-out"><i class="fas fa-search-minus"></i></button>
-            <h3>À propos</h3>
-            <p>Rejoignez-nous sur les réseaux sociaux :</p>
-            <div class="social-links">
-                <a href="YOUR_LINK"><img src="facebook-icon.png" alt="Facebook"></a>
-                <a href="YOUR_LINK"><img src="twitter-icon.png" alt="Twitter"></a>
-                <a href="YOUR_LINK"><img src="instagram-icon.png" alt="Instagram"></a>
+        <div class="user-profile">
+            <div class="user-avatar">
+                <img id="user-avatar-img" src="https://via.placeholder.com/100" alt="Avatar">
+            </div>
+            <div class="user-info">
+                <h3 id="user-name">Invité</h3>
             </div>
         </div>
-        <button class="back-button" onclick="navigateBack()"><i class="fas fa-arrow-left"></i></button>
+        
+        <div class="settings-section">
+            <h3>Compte</h3>
+            <div id="auth-forms">
+                <div id="login-form">
+                    <input type="email" id="login-email" placeholder="Email">
+                    <input type="password" id="login-password" placeholder="Mot de passe">
+                    <button id="login-btn" class="auth-btn">Connexion</button>
+                    <p>Pas de compte? <a href="#" id="show-register">S'inscrire</a></p>
+                </div>
+                <div id="register-form" style="display: none;">
+                    <input type="text" id="register-name" placeholder="Nom">
+                    <input type="email" id="register-email" placeholder="Email">
+                    <input type="password" id="register-password" placeholder="Mot de passe">
+                    <input type="file" id="avatar-upload" accept="image/*">
+                    <button id="register-btn" class="auth-btn">S'inscrire</button>
+                    <p>Déjà un compte? <a href="#" id="show-login">Se connecter</a></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="settings-section">
+            <h3>Préférences</h3>
+            <div class="preference-option">
+                <span>Mode sombre</span>
+                <label class="switch">
+                    <input type="checkbox" id="dark-mode-toggle">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <div class="preference-option">
+                <span>Langue</span>
+                <select id="language-selector">
+                    <option value="fr">Français</option>
+                    <option value="en">English</option>
+                    <option value="ar">العربية</option>
+                </select>
+            </div>
+            <div class="preference-option">
+                <span>Taille du texte</span>
+                <div class="zoom-controls">
+                    <button id="zoom-out"><i class="fas fa-search-minus"></i></button>
+                    <span id="zoom-level">100%</span>
+                    <button id="zoom-in"><i class="fas fa-search-plus"></i></button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="settings-section">
+            <h3>À propos</h3>
+            <button id="info-btn" class="about-btn"><i class="fas fa-info-circle"></i> Informations</button>
+            <button id="contact-btn" class="about-btn"><i class="fas fa-envelope"></i> Nous rejoindre</button>
+            <div class="social-icons">
+                <a href="#" class="social-icon"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
     </div>
 
     <!-- Barre de navigation -->
-    <div class="nav-bar">
-        <button onclick="navigate('home')"><i class="fas fa-home"></i></button>
-        <button onclick="navigate('chapters')"><i class="fas fa-book"></i></button>
-        <button onclick="navigate('reading')"><i class="fas fa-book-open"></i></button>
-        <button onclick="navigate('favorites')"><i class="fas fa-heart"></i></button>
-        <button onclick="navigate('settings')"><i class="fas fa-cog"></i></button>
+    <div class="bottom-nav">
+        <button class="nav-btn" data-page="home-page"><i class="fas fa-home"></i></button>
+        <button class="nav-btn" data-page="toc-page"><i class="fas fa-list"></i></button>
+        <button class="nav-btn" data-page="reading-page" style="display: none;"><i class="fas fa-book"></i></button>
+        <button class="nav-btn" data-page="favorites-page"><i class="fas fa-heart"></i></button>
+        <button class="nav-btn" data-page="settings-page"><i class="fas fa-cog"></i></button>
     </div>
 
-    <!-- Bouton flottant IA -->
-    <button class="ai-button" id="ai-button"><i class="fas fa-robot"></i></button>
-    <div class="ai-chat hidden" id="ai-chat">
-        <div class="chat-header">Chat IA - L'Écho des Étoiles</div>
-        <div class="chat-messages" id="chat-messages"></div>
-        <div class="chat-input">
-            <input type="text" id="chat-input" placeholder="Posez une question sur le livre...">
-            <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+    <!-- Chat IA flottant -->
+    <div id="ai-chat-container" class="ai-chat-hidden">
+        <button id="ai-chat-toggle" class="ai-chat-btn"><i class="fas fa-robot"></i></button>
+        <div id="ai-chat-window">
+            <div id="ai-chat-header">
+                <span>Assistant de lecture</span>
+                <button id="ai-chat-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="ai-chat-messages"></div>
+            <div id="ai-chat-input-container">
+                <input type="text" id="ai-chat-input" placeholder="Posez une question sur le livre...">
+                <button id="ai-chat-send"><i class="fas fa-paper-plane"></i></button>
+            </div>
         </div>
     </div>
 
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
