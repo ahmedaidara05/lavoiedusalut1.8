@@ -8,6 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="favicon.png">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js"></script>
 </head>
 <body oncontextmenu="return false" onselectstart="return false" ondragstart="return false" oncopy="return false" oncut="return false" onpaste="return false">
     <!-- Page d'accueil -->
@@ -16,7 +20,7 @@
             <div class="hero-content">
                 <h1>L'Écho des Étoiles</h1>
                 <p>Plongez dans une aventure épique à travers les étoiles, où mystère, courage et destin s'entrelacent.</p>
-                <button onclick="navigate('chapters')"><i class="fas fa-play"></i></button>
+                <button onclick="navigate('chapters')" class="start-button">COMMENCER</button>
             </div>
         </div>
     </div>
@@ -61,6 +65,7 @@
         <div class="settings-options">
             <h3>Connexion / Inscription</h3>
             <input type="text" id="username" placeholder="Nom d'utilisateur">
+            <input type="email" id="email" placeholder="Email">
             <input type="password" id="password" placeholder="Mot de passe">
             <button onclick="login()"><i class="fas fa-sign-in-alt"></i></button>
             <button onclick="register()"><i class="fas fa-user-plus"></i></button>
@@ -91,6 +96,17 @@
         <button onclick="navigate('reading')"><i class="fas fa-book-open"></i></button>
         <button onclick="navigate('favorites')"><i class="fas fa-heart"></i></button>
         <button onclick="navigate('settings')"><i class="fas fa-cog"></i></button>
+    </div>
+
+    <!-- Bouton flottant IA -->
+    <button class="ai-button" id="ai-button"><i class="fas fa-robot"></i></button>
+    <div class="ai-chat hidden" id="ai-chat">
+        <div class="chat-header">Chat IA - L'Écho des Étoiles</div>
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-input">
+            <input type="text" id="chat-input" placeholder="Posez une question sur le livre...">
+            <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
     </div>
 
     <script src="script.js"></script>
