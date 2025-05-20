@@ -16,8 +16,9 @@
 
     <section id="home-page" class="page active">
         <div class="home-content">
-            <h1>Bienvenue sur La Voie du Salut</h1>
-            <p>Découvrez une histoire captivante, chapitre par chapitre.</p>
+            <h1 class="gold-title">LA VOIE DU SALUT</h1>
+            <p class="description-text">Découvrez une histoire captivante, un voyage épique à travers les mystères du destin.</p>
+            <p class="small-description-text">Plongez dans un récit où chaque page révèle de nouvelles vérités et défis inattendus.</p>
             <button id="start-button" class="modern-button">COMMENCER</button>
         </div>
     </section>
@@ -27,13 +28,14 @@
         <div id="chapters-list">
             </div>
         <div class="chat-fab-container">
-            <button id="chat-fab" class="chat-fab">💬</button>
+            <button id="chat-fab-sommaire" class="chat-fab">💬</button>
         </div>
     </section>
 
     <section id="reading-page" class="page">
         <div class="reading-header">
-            <span class="back-to-sommaire">Retour</span>
+            <button id="back-to-sommaire" class="icon-button back-arrow">←</button>
+            <h2 id="reading-chapter-title" class="gold-title"></h2>
             <div class="reading-controls">
                 <button id="theme-toggle" class="icon-button" title="Mode Sombre/Clair">💡</button>
                 <button id="lang-toggle" class="icon-button" title="Changer la langue">🌐</button>
@@ -43,7 +45,6 @@
                 <button id="favorite-chapter" class="icon-button heart-button" title="Ajouter aux favoris">❤️</button>
             </div>
         </div>
-        <h2 id="reading-chapter-title" class="gold-title"></h2>
         <div id="chapter-content" class="chapter-text" contenteditable="false">
             </div>
         <div class="scroll-controls">
@@ -71,8 +72,7 @@
             <h2 class="gold-title">Paramètres</h2>
         </div>
         <div class="user-profile">
-            <img id="user-photo" src="https://via.placeholder.com/80x80?text=User" alt="Photo de profil" class="profile-photo">
-            <span id="user-name">Invité</span>
+            <span id="user-name-display">Nom Prénom</span>
         </div>
         <div class="settings-section">
             <h3>Compte</h3>
@@ -126,7 +126,6 @@
         </div>
     </div>
 
-
     <div id="auth-modal" class="auth-modal">
         <div class="auth-modal-content">
             <span class="close-auth">&times;</span>
@@ -145,23 +144,24 @@
 
     <nav class="bottom-nav">
         <a href="#" class="nav-item active" data-target="home-page">
-            <img src="https://img.icons8.com/ios-filled/24/000000/home.png" alt="Accueil">
+            <img src="https://img.icons8.com/ios-filled/24/DAA520/home.png" alt="Accueil">
             <span>Accueil</span>
         </a>
         <a href="#" class="nav-item" data-target="sommaire-page">
-            <img src="https://img.icons8.com/ios-filled/24/000000/table-of-contents.png" alt="Sommaire">
+            <img src="https://img.icons8.com/ios-filled/24/DAA520/table-of-contents.png" alt="Sommaire">
             <span>Sommaire</span>
         </a>
         <a href="#" class="nav-item" data-target="favorites-page">
-            <img src="https://img.icons8.com/ios-filled/24/000000/filled-heart.png" alt="Favoris">
+            <img src="https://img.icons8.com/ios-filled/24/DAA520/filled-heart.png" alt="Favoris">
             <span>Favoris</span>
         </a>
         <a href="#" class="nav-item" data-target="settings-page">
-            <img src="https://img.icons8.com/ios-filled/24/000000/settings.png" alt="Paramètres">
+            <img src="https://img.icons8.com/ios-filled/24/DAA520/settings.png" alt="Paramètres">
             <span>Paramètres</span>
         </a>
     </nav>
 
+    <script src="content.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
