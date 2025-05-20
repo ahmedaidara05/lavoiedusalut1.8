@@ -52,20 +52,23 @@ body {
     margin: 20px 0;
 }
 
-.hero button {
-    padding: 15px;
-    font-size: 1.5rem;
-    background: #ffd700;
+.start-button {
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: linear-gradient(45deg, #ffd700, #e6c200);
     border: none;
     color: #000;
     cursor: pointer;
     border-radius: 50px;
-    transition: transform 0.3s, background 0.3s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.hero button:hover {
-    transform: scale(1.1);
-    background: #e6c200;
+.start-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
 }
 
 /* Pages */
@@ -232,6 +235,96 @@ h1, h2, h3 {
     color: #ffd700;
 }
 
+/* Bouton flottant IA */
+.ai-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 15px;
+    background: #ffd700;
+    border: none;
+    border-radius: 50%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    font-size: 1.5rem;
+    display: none;
+}
+
+.ai-button:hover {
+    background: #e6c200;
+}
+
+/* Chat IA */
+.ai-chat {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 300px;
+    max-height: 400px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+}
+
+.ai-chat.hidden {
+    display: none;
+}
+
+.chat-header {
+    background: #ffd700;
+    padding: 10px;
+    border-radius: 10px 10px 0 0;
+    text-align: center;
+    font-weight: 600;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.chat-messages .user-message {
+    background: #ffd700;
+    color: #000;
+    padding: 8px;
+    border-radius: 5px;
+    margin: 5px 0;
+    text-align: right;
+}
+
+.chat-messages .ai-message {
+    background: #f4f4f9;
+    padding: 8px;
+    border-radius: 5px;
+    margin: 5px 0;
+}
+
+.chat-input {
+    display: flex;
+    padding: 10px;
+    background: #f4f4f9;
+    border-radius: 0 0 10px 10px;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+}
+
+.chat-input button {
+    padding: 8px;
+    background: #ffd700;
+    border: none;
+    border-radius: 5px;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .hero h1 {
@@ -239,5 +332,8 @@ h1, h2, h3 {
     }
     .chapter-list {
         grid-template-columns: 1fr;
+    }
+    .ai-chat {
+        width: 90%;
     }
 }
