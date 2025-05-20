@@ -50,7 +50,7 @@ body.dark-mode .icon-button {
 body.dark-mode .modern-button:hover,
 body.dark-mode .settings-button:hover,
 body.dark-mode .icon-button:hover {
-    background-color: var(--accent-color); /* Maintain accent color on hover */
+    background-color: #0056b3; /* Darker accent on hover */
     opacity: 0.9;
 }
 
@@ -68,8 +68,9 @@ body.dark-mode .bottom-nav .nav-item.active {
 }
 
 body.dark-mode .bottom-nav .nav-item img {
-    filter: invert(1); /* Invert icon colors for dark mode */
+    filter: brightness(0) invert(1) sepia(1) saturate(5) hue-rotate(170deg); /* Re-colorize active icon to gold */
 }
+
 
 /* Anti-copy/paste overlay */
 .overlay {
@@ -89,6 +90,7 @@ body.dark-mode .bottom-nav .nav-item img {
     min-height: calc(100vh - 60px); /* Adjust for nav bar height */
     box-sizing: border-box;
     padding-bottom: 70px; /* Space for bottom nav */
+    overflow-y: auto; /* Enable scrolling for content within pages */
 }
 
 .page.active {
@@ -107,36 +109,45 @@ body.dark-mode .bottom-nav .nav-item img {
 
 /* --- Home Page --- */
 #home-page {
-    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1521747116056-5606d8636e78?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') no-repeat center center/cover;
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1549449673-f9a888c30d7b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') no-repeat center center/cover;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start; /* Align content to the left */
     align-items: center;
-    text-align: center;
+    text-align: left; /* Align text to the left */
     color: white;
     min-height: 100vh; /* Full viewport height */
     padding-bottom: 0; /* No bottom nav on home */
+    padding-left: 10%; /* Add some padding from the left edge */
 }
 
 .home-content {
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.6); /* Slightly darker overlay for text */
     padding: 40px 60px;
     border-radius: 15px;
     backdrop-filter: blur(5px);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    max-width: 600px; /* Limit content width */
 }
 
-#home-page h1 {
+#home-page .gold-title {
     font-family: 'Playfair Display', serif;
-    font-size: 3.5em;
+    font-size: 4em; /* Larger title for home */
     margin-bottom: 20px;
     color: var(--gold-color);
     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+    text-align: left; /* Keep title aligned left */
 }
 
-#home-page p {
-    font-size: 1.3em;
-    margin-bottom: 40px;
+.description-text {
+    font-size: 1.5em;
+    margin-bottom: 20px;
     line-height: 1.6;
+}
+
+.small-description-text {
+    font-size: 1.1em;
+    margin-bottom: 40px;
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .modern-button {
@@ -225,20 +236,32 @@ body.dark-mode .reading-header {
     border-color: var(--border-color-dark);
 }
 
-.back-to-sommaire {
-    font-size: 1.1em;
+.back-arrow {
+    font-size: 2em;
+    color: var(--text-color-light);
+    transition: transform 0.2s, color 0.2s;
+    background: none;
+    border: none;
     cursor: pointer;
-    color: var(--accent-color);
-    transition: color 0.2s;
+    padding: 5px;
+    border-radius: 5px;
 }
 
-.back-to-sommaire:hover {
-    text-decoration: underline;
+body.dark-mode .back-arrow {
+    color: var(--text-color-dark);
 }
+
+.back-arrow:hover {
+    transform: scale(1.1);
+    color: var(--accent-color);
+}
+
 
 .reading-controls {
     display: flex;
     gap: 10px;
+    flex-wrap: wrap; /* Allow wrapping on small screens */
+    justify-content: flex-end;
 }
 
 .icon-button {
@@ -354,25 +377,6 @@ body.dark-mode .settings-header {
     margin: 0;
 }
 
-.back-arrow {
-    font-size: 2em;
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-color-light);
-}
-
-body.dark-mode .back-arrow {
-    color: var(--text-color-dark);
-}
-
-.back-arrow:hover {
-    color: var(--accent-color);
-    transform: translateY(-50%) scale(1.1);
-}
-
-
 .user-profile {
     display: flex;
     flex-direction: column;
@@ -390,22 +394,14 @@ body.dark-mode .user-profile {
     border-color: var(--border-color-dark);
 }
 
-.profile-photo {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 10px;
-    border: 3px solid var(--gold-color);
-}
-
-#user-name {
+#user-name-display {
     font-size: 1.4em;
     font-weight: bold;
     color: var(--text-color-light);
+    text-align: center;
 }
 
-body.dark-mode #user-name {
+body.dark-mode #user-name-display {
     color: var(--text-color-dark);
 }
 
@@ -526,17 +522,28 @@ body.dark-mode .social-icons img {
     width: 24px;
     height: 24px;
     margin-bottom: 3px;
-    filter: invert(0.3); /* Adjust icon color */
+    filter: brightness(0) saturate(100%); /* Make icons black initially */
 }
+
+body.dark-mode .bottom-nav .nav-item img {
+    filter: brightness(0) invert(1); /* White for dark mode non-active */
+}
+
 
 .bottom-nav .nav-item.active {
     background-color: #e6e6e6;
     color: var(--accent-color);
 }
 
-.bottom-nav .nav-item.active img {
-    filter: invert(0.1) sepia(1) saturate(5) hue-rotate(170deg); /* Color active icon */
+body.dark-mode .bottom-nav .nav-item.active {
+    background-color: #444;
 }
+
+.bottom-nav .nav-item.active img {
+    filter: brightness(0) invert(0) sepia(1) saturate(5) hue-rotate(0deg); /* Color active icon to gold */
+    filter: drop-shadow(0 0 5px var(--gold-color)); /* Add a glow */
+}
+
 
 .bottom-nav .nav-item:hover {
     background-color: #f0f0f0;
@@ -647,6 +654,8 @@ body.dark-mode .chat-modal-content h3 {
     border-radius: 8px;
     margin-bottom: 15px;
     background-color: var(--bg-color-light);
+    display: flex; /* Enable flex for messages */
+    flex-direction: column; /* Stack messages vertically */
 }
 
 body.dark-mode .chat-history {
@@ -660,6 +669,7 @@ body.dark-mode .chat-history {
     border-radius: 15px;
     max-width: 80%;
     word-wrap: break-word;
+    font-size: 0.95em;
 }
 
 .chat-message.user {
@@ -667,6 +677,7 @@ body.dark-mode .chat-history {
     color: white;
     align-self: flex-end;
     margin-left: auto;
+    border-bottom-right-radius: 2px; /* For chat bubble effect */
 }
 
 .chat-message.ai {
@@ -674,6 +685,7 @@ body.dark-mode .chat-history {
     color: black;
     align-self: flex-start;
     margin-right: auto;
+    border-bottom-left-radius: 2px; /* For chat bubble effect */
 }
 
 .chat-input-area {
@@ -812,21 +824,30 @@ body.dark-mode #auth-form input {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    #home-page h1 {
-        font-size: 2.5em;
+    #home-page {
+        padding-left: 5%;
+        justify-content: center;
+        text-align: center;
     }
-
-    #home-page p {
-        font-size: 1em;
+    .home-content {
+        padding: 30px;
+        max-width: 90%;
+        text-align: center;
     }
-
-    .modern-button {
-        padding: 12px 30px;
-        font-size: 1em;
+    #home-page .gold-title {
+        font-size: 3em;
+        text-align: center;
+    }
+    .description-text {
+        font-size: 1.2em;
+    }
+    .small-description-text {
+        font-size: 0.9em;
     }
 
     #chapters-list, #favorites-list {
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
     }
 
     .gold-title {
@@ -841,11 +862,11 @@ body.dark-mode #auth-form input {
     .reading-header {
         flex-direction: column;
         gap: 15px;
+        align-items: flex-start; /* Align header items left on mobile */
     }
-
     .reading-controls {
-        flex-wrap: wrap;
-        justify-content: center;
+        width: 100%; /* Take full width */
+        justify-content: space-around; /* Distribute buttons */
     }
 
     .settings-section h3 {
@@ -853,52 +874,53 @@ body.dark-mode #auth-form input {
     }
 
     .user-profile {
-        flex-direction: row;
-        gap: 20px;
+        padding: 15px;
     }
-
-    .profile-photo {
-        width: 60px;
-        height: 60px;
-    }
-
-    #user-name {
+    #user-name-display {
         font-size: 1.2em;
     }
 
     .bottom-nav .nav-item span {
-        display: none; /* Hide text on small screens */
+        font-size: 0.7em; /* Make text smaller on mobile */
     }
 
     .bottom-nav .nav-item img {
-        margin-bottom: 0;
+        width: 20px;
+        height: 20px;
     }
 }
 
 @media (max-width: 480px) {
     .home-content {
-        padding: 30px 20px;
+        padding: 20px;
     }
 
-    #home-page h1 {
-        font-size: 2em;
+    #home-page .gold-title {
+        font-size: 2.5em;
     }
 
-    .gold-title {
-        font-size: 1.8em;
+    .modern-button {
+        padding: 10px 25px;
+        font-size: 1em;
     }
 
     .chapter-item {
-        padding: 15px;
+        padding: 10px;
     }
 
     .settings-button {
-        font-size: 1em;
+        font-size: 0.9em;
         padding: 10px;
     }
 
     .auth-modal-content, .chat-modal-content {
         width: 95%;
         padding: 15px;
+    }
+
+    .chat-fab {
+        width: 50px;
+        height: 50px;
+        font-size: 1.8em;
     }
 }
