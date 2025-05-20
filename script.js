@@ -36,12 +36,12 @@ function loadChapter(chapter) {
 // Mode sombre/clair
 document.getElementById('theme-toggle').addEventListener('click', () => {
     document.body.classList.toggle('dark-mode');
-    document.getElementById('theme-toggle').textContent = document.body.classList.contains('dark-mode') ? 'Mode Clair' : 'Mode Sombre';
+    document.getElementById('theme-toggle').innerHTML = document.body.classList.contains('dark-mode') ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
 });
 
 document.getElementById('settings-theme').addEventListener('click', () => {
     document.body.classList.toggle('dark-mode');
-    document.getElementById('settings-theme').textContent = document.body.classList.contains('dark-mode') ? 'Mode Clair' : 'Mode Sombre';
+    document.getElementById('settings-theme').innerHTML = document.body.classList.contains('dark-mode') ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
 });
 
 // Zoom
@@ -80,7 +80,7 @@ function populateVoices() {
     voices = speechSynthesis.getVoices();
     const voiceSelect = document.getElementById('voice-select');
     voiceSelect.innerHTML = '';
-    voices.forEach((voice, i) => {
+    voices.slice(0, 4).forEach((voice, i) => {
         const option = document.createElement('option');
         option.value = i;
         option.textContent = voice.name;
@@ -93,7 +93,7 @@ speechSynthesis.onvoiceschanged = populateVoices;
 document.getElementById('read-aloud').addEventListener('click', () => {
     if (utterance && speechSynthesis.speaking) {
         speechSynthesis.cancel();
-        document.getElementById('read-aloud').textContent = 'Lecture à voix haute';
+        document.getElementById('read-aloud').innerHTML = '<i class="fas fa-volume-up"></i>';
         return;
     }
     const text = document.getElementById('chapter-content').textContent;
@@ -101,14 +101,14 @@ document.getElementById('read-aloud').addEventListener('click', () => {
     utterance.voice = voices[document.getElementById('voice-select').value];
     utterance.lang = document.getElementById('language').value;
     speechSynthesis.speak(utterance);
-    document.getElementById('read-aloud').textContent = 'Arrêter';
+    document.getElementById('read-aloud').innerHTML = '<i class="fas fa-stop"></i>';
 });
 
 // Auto-scroll
 let scrolling = false;
 document.getElementById('auto-scroll').addEventListener('click', () => {
     scrolling = !scrolling;
-    document.getElementById('auto-scroll').textContent = scrolling ? 'Arrêter Scroll' : 'Auto-scroll';
+    document.getElementById('auto-scroll').innerHTML = scrolling ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-scroll"></i>';
     if (scrolling) {
         const content = document.getElementById('chapter-content');
         let scrollSpeed = 1;
@@ -117,7 +117,7 @@ document.getElementById('auto-scroll').addEventListener('click', () => {
                 content.scrollTop += scrollSpeed;
                 if (content.scrollTop >= content.scrollHeight - content.clientHeight) {
                     scrolling = false;
-                    document.getElementById('auto-scroll').textContent = 'Auto-scroll';
+                    document.getElementById('auto-scroll').innerHTML = '<i class="fas fa-scroll"></i>';
                 }
                 requestAnimationFrame(scroll);
             }
