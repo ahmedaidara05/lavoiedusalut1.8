@@ -1,62 +1,36 @@
-// Charger le contenu du livre
-fetch('content.json')
-    .then(response => response.json())
-    .then(data => {
-        window.bookContent = data;
-        renderSummary();
-        renderFavorites();
-    });
-
-// Variables globales
-let currentPage = 'home-page';
-let currentChapter = null;
-let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-let fontSize = 16;
-let isAutoScrolling = false;
-let scrollDirection = 'down';
-
 // Navigation
-function showPage(pageId) {
-    document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-    document.getElementById(pageId).classList.add('active');
-    currentPage = pageId;
+let lastPage = 'home';
 
-    // Gérer la barre de navigation
-    const bottomNav = document.querySelector('.bottom-nav');
-    if (pageId === 'home-page' || pageId === 'settings-page') {
-        bottomNav.classList.add('hidden');
-    } else {
-        bottomNav.classList.remove('hidden');
-    }
+function navigate(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+    document.getElementById(page).classList.remove('hidden');
+    lastPage = page;
+    document.querySelector('.nav-bar').style.display = (page === 'home' || page === 'settings') ? 'none' : 'flex';
 }
 
-// Page d'accueil
-document.getElementById('start-btn').addEventListener('click', () => showPage('summary-page'));
-
-// Sommaire
-function renderSummary() {
-    const chapterList = document.getElementById('chapter-list');
-    chapterList.innerHTML = '';
-    for (let i = 1; i <= 44; i++) {
-        const chapter = document.createElement('div');
-        chapter.classList.add('chapter-item');
-        chapter.textContent = `Chapitre ${i}`;
-        chapter.addEventListener('click', () => {
-            currentChapter = i;
-            showPage('reading-page');
-            renderChapter();
-        });
-        chapterList.appendChild(chapter);
-    }
+// Retour à la dernière page
+function navigateBack() {
+    navigate(lastPage);
 }
 
-// Lecture
-function renderChapter() {
-    const contentDiv = document.getElementById('chapter-content');
-    const lang = document.getElementById('language-select').value;
-    const chapterData = bookContent.chapters.find(ch => ch.id === currentChapter);
-    contentDiv.innerHTML = `<h2 class="golden-title">${chapterData.title[lang]}</h2><p>${chapterData.content[lang]}</p>`;
-    contentDiv.style.fontSize = `${fontSize}px`;
+// Liste des chapitres
+const chapterList = document.querySelector('.chapter-list');
+for (let i = 1; i <= 44; i++) {
+    const div = document.createElement('div');
+    div.textContent = `Chapitre ${i}`;
+    div.onclick = () => {
+        currentChapter = i;
+        loadChapter(i);
+        navigate('reading');
+    };
+    chapterList.appendChild(div);
+}
+
+// Gestion du contenu du chapitre
+let currentChapter = 1;
+function loadChapter(chapter) {
+    const content = bookContent[chapter - 1][document.getElementById('language').value];
+    document.getElementById('chapter-content').innerHTML = `<h2>Chapitre ${chapter}</h2><p>${content}</p>`;
 }
 
 // Mode sombre/clair
@@ -65,20 +39,13 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
     document.getElementById('theme-toggle').textContent = document.body.classList.contains('dark-mode') ? 'Mode Clair' : 'Mode Sombre';
 });
 
-document.getElementById('theme-toggle-settings').addEventListener('click', () => {
+document.getElementById('settings-theme').addEventListener('click', () => {
     document.body.classList.toggle('dark-mode');
-    document.getElementById('theme-toggle-settings').textContent = document.body.classList.contains('dark-mode') ? 'Mode Clair' : 'Mode Sombre';
-});
-
-// Changement de langue
-document.getElementById('language-select').addEventListener('change', renderChapter);
-document.getElementById('language-select-settings').addEventListener('change', () => {
-    const lang = document.getElementById('language-select-settings').value;
-    document.getElementById('language-select').value = lang;
-    renderChapter();
+    document.getElementById('settings-theme').textContent = document.body.classList.contains('dark-mode') ? 'Mode Clair' : 'Mode Sombre';
 });
 
 // Zoom
+let fontSize = 16;
 document.getElementById('zoom-in').addEventListener('click', () => {
     fontSize += 2;
     document.getElementById('chapter-content').style.fontSize = `${fontSize}px`;
@@ -89,60 +56,69 @@ document.getElementById('zoom-out').addEventListener('click', () => {
     document.getElementById('chapter-content').style.fontSize = `${fontSize}px`;
 });
 
-document.getElementById('zoom-in-settings').addEventListener('click', () => {
+document.getElementById('settings-zoom-in').addEventListener('click', () => {
     fontSize += 2;
     document.getElementById('chapter-content').style.fontSize = `${fontSize}px`;
 });
 
-document.getElementById('zoom-out-settings').addEventListener('click', () => {
+document.getElementById('settings-zoom-out').addEventListener('click', () => {
     if (fontSize > 12) fontSize -= 2;
     document.getElementById('chapter-content').style.fontSize = `${fontSize}px`;
 });
 
-// Lecture à voix haute (simulation avec Web Speech API)
-document.getElementById('read-aloud').addEventListener('click', () => {
-    const content = document.getElementById('chapter-content').textContent;
-    const voice = document.getElementById('voice-select').value;
-    const utterance = new SpeechSynthesisUtterance(content);
-    utterance.lang = document.getElementById('language-select').value;
-    // Simulation de voix différentes (dépend du navigateur)
-    utterance.voice = speechSynthesis.getVoices().find(v => v.name.includes(voice)) || null;
-    speechSynthesis.speak(utterance);
+// Changement de langue
+document.getElementById('language').addEventListener('change', () => loadChapter(currentChapter));
+document.getElementById('settings-language').addEventListener('change', () => {
+    document.getElementById('language').value = document.getElementById('settings-language').value;
+    loadChapter(currentChapter);
 });
 
-// Favoris
-document.getElementById('favorite-btn').addEventListener('click', () => {
-    if (!favorites.includes(currentChapter)) {
-        favorites.push(currentChapter);
-        localStorage.setItem('favorites', JSON.stringify(favorites));
-        renderFavorites();
-    }
-});
-
-function renderFavorites() {
-    const favoritesList = document.getElementById('favorites-list');
-    favoritesList.innerHTML = '';
-    favorites.forEach(chapterId => {
-        const chapter = document.createElement('div');
-        chapter.classList.add('chapter-item');
-        chapter.textContent = `Chapitre ${chapterId}`;
-        chapter.addEventListener('click', () => {
-            currentChapter = chapterId;
-            showPage('reading-page');
-            renderChapter();
-        });
-        favoritesList.appendChild(chapter);
+// Lecture à voix haute
+let voices = [];
+let utterance = null;
+function populateVoices() {
+    voices = speechSynthesis.getVoices();
+    const voiceSelect = document.getElementById('voice-select');
+    voiceSelect.innerHTML = '';
+    voices.forEach((voice, i) => {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = voice.name;
+        voiceSelect.appendChild(option);
     });
 }
 
+speechSynthesis.onvoiceschanged = populateVoices;
+
+document.getElementById('read-aloud').addEventListener('click', () => {
+    if (utterance && speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+        document.getElementById('read-aloud').textContent = 'Lecture à voix haute';
+        return;
+    }
+    const text = document.getElementById('chapter-content').textContent;
+    utterance = new SpeechSynthesisUtterance(text);
+    utterance.voice = voices[document.getElementById('voice-select').value];
+    utterance.lang = document.getElementById('language').value;
+    speechSynthesis.speak(utterance);
+    document.getElementById('read-aloud').textContent = 'Arrêter';
+});
+
 // Auto-scroll
+let scrolling = false;
 document.getElementById('auto-scroll').addEventListener('click', () => {
-    isAutoScrolling = !isAutoScrolling;
-    document.getElementById('auto-scroll').textContent = isAutoScrolling ? 'Arrêter' : 'Auto-scroll';
-    if (isAutoScrolling) {
+    scrolling = !scrolling;
+    document.getElementById('auto-scroll').textContent = scrolling ? 'Arrêter Scroll' : 'Auto-scroll';
+    if (scrolling) {
+        const content = document.getElementById('chapter-content');
+        let scrollSpeed = 1;
         const scroll = () => {
-            if (isAutoScrolling) {
-                window.scrollBy(0, scrollDirection === 'down' ? 1 : -1);
+            if (scrolling) {
+                content.scrollTop += scrollSpeed;
+                if (content.scrollTop >= content.scrollHeight - content.clientHeight) {
+                    scrolling = false;
+                    document.getElementById('auto-scroll').textContent = 'Auto-scroll';
+                }
                 requestAnimationFrame(scroll);
             }
         };
@@ -150,37 +126,57 @@ document.getElementById('auto-scroll').addEventListener('click', () => {
     }
 });
 
-// Paramètres
-document.getElementById('back-btn').addEventListener('click', () => showPage(currentPage === 'settings-page' ? 'summary-page' : currentPage));
+// Favoris
+let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+function updateFavorites() {
+    const favoriteList = document.querySelector('.favorite-list');
+    favoriteList.innerHTML = '';
+    favorites.forEach(chapter => {
+        const div = document.createElement('div');
+        div.textContent = `Chapitre ${chapter}`;
+        div.onclick = () => {
+            currentChapter = chapter;
+            loadChapter(chapter);
+            navigate('reading');
+        };
+        favoriteList.appendChild(div);
+    });
+}
 
-// Connexion/Inscription (simulation)
-document.getElementById('login-btn').addEventListener('click', () => {
+document.getElementById('favorite').addEventListener('click', () => {
+    if (!favorites.includes(currentChapter)) {
+        favorites.push(currentChapter);
+        localStorage.setItem('favorites', JSON.stringify(favorites));
+        updateFavorites();
+    }
+});
+
+// Connexion/Inscription
+function login() {
     const username = document.getElementById('username').value;
-    if (username) {
+    const password = document.getElementById('password').value;
+    if (username && password) {
         document.getElementById('user-name').textContent = username;
         alert('Connexion réussie !');
     }
-});
+}
 
-document.getElementById('signup-btn').addEventListener('click', () => {
+function register() {
     const username = document.getElementById('username').value;
-    if (username) {
+    const password = document.getElementById('password').value;
+    if (username && password) {
         document.getElementById('user-name').textContent = username;
         alert('Inscription réussie !');
     }
-});
-
-// Navigation via barre
-document.querySelectorAll('.bottom-nav button').forEach(btn => {
-    btn.addEventListener('click', () => showPage(btn.dataset.page));
-});
+}
 
 // Sécurité
-document.addEventListener('contextmenu', e => e.preventDefault()); // Désactiver clic droit
-document.addEventListener('keydown', e => {
+document.addEventListener('keydown', (e) => {
     if (e.ctrlKey && (e.key === 'p' || e.key === 'c' || e.key === 's')) {
-        e.preventDefault(); // Désactiver Ctrl+P, Ctrl+C, Ctrl+S
+        e.preventDefault();
     }
 });
-document.addEventListener('copy', e => e.preventDefault()); // Désactiver copier
-document.addEventListener('cut', e => e.preventDefault()); // Désactiver couper
+
+// Initialisation
+updateFavorites();
+populateVoices();
