@@ -1,777 +1,548 @@
 // Configuration et initialisation de Firebase
 const firebaseConfig = {
-    apiKey: "AIzaSyAljojXHODwHjStePWkhthWLRzrw3pUslQ", // REPLACE WITH YOUR ACTUAL API KEY
-    authDomain: "la-voie-du-salut-36409.firebaseapp.com", // REPLACE WITH YOUR ACTUAL AUTH DOMAIN
-    projectId: "la-voie-du-salut-36409", // REPLACE WITH YOUR ACTUAL PROJECT ID
-    storageBucket: "la-voie-du-salut-36409.firebasestorage.app", // REPLACE WITH YOUR ACTUAL STORAGE BUCKET
-    messagingSenderId: "61439310820", // REPLACE WITH YOUR ACTUAL MESSAGING SENDER ID
-    appId: "1:61439310820:web:52bfe8b862666ac13d25f1", // REPLACE WITH YOUR ACTUAL APP ID
-    measurementId: "G-G9S1ST8K3R" // REPLACE WITH YOUR ACTUAL MEASUREMENT ID
+    apiKey: "AIzaSyAljojXHODwHjStePWkhthWLRzrw3pUslQ",
+    authDomain: "la-voie-du-salut-36409.firebaseapp.com",
+    projectId: "la-voie-du-salut-36409",
+    storageBucket: "la-voie-du-salut-36409.firebasestorage.app",
+    messagingSenderId: "61439310820",
+    appId: "1:61439310820:web:52bfe8b862666ac13d25f1",
+    measurementId: "G-G9S1ST8K3R"
 };
 
 // Initialiser Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-const storage = firebase.storage();
 
-// Global Variables
-let currentChapterId = null;
-let currentLanguage = 'fr'; // Default language
-let currentFontSize = 1.1; // Default font size for reading page (em)
-let utterance = null; // For speech synthesis
-let speechVoices = [];
-let currentVoiceIndex = 0; // Index for cycling through voices for read-aloud
-let autoScrollInterval = null;
-let userFavorites = []; // Array to store favorited chapter IDs (e.g., ['chapter-1', 'chapter-5'])
-let lastPageBeforeSettings = 'home-page'; // To return to the correct page from settings
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').then(() => {
+        console.log('Service Worker registered');
+    }).catch(err => console.error('Service Worker registration failed:', err));
+}
 
-// DOM Elements - Pages
-const homePage = document.getElementById('home-page');
-const sommairePage = document.getElementById('sommaire-page');
-const readingPage = document.getElementById('reading-page');
-const favoritesPage = document.getElementById('favorites-page');
-const settingsPage = document.getElementById('settings-page');
+document.addEventListener('DOMContentLoaded', () => {
+    const homePage = document.getElementById('homePage');
+    const indexPage = document.getElementById('indexPage');
+    const readingPage = document.getElementById('readingPage');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const favoritesPage = document.getElementById('favoritesPage');
+    const notesPage = document.getElementById('notesPage');
+    const arabicText = document.getElementById('arabicText');
+    const textContent = document.getElementById('textContent');
+    const suraTitle = document.getElementById('suraTitle');
+    const languageSelect = document.getElementById('languageSelect');
+    const themeSelect = document.getElementById('themeSelect');
+    const fontSelect = document.getElementById('fontSelect');
+    const fontSize = document.getElementById('fontSize');
+    const favoritesList = document.getElementById('favoritesList');
+    const searchBar = document.getElementById('searchBar');
+    const searchResults = document.getElementById('searchResults');
+    const customizePanel = document.getElementById('customizePanel');
+    const voiceSelectPanel = document.getElementById('voiceSelectPanel');
+    const voiceSelect = document.getElementById('voiceSelect');
+    const voicePlayBtn = document.querySelector('.voice-play-btn');
+    let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    let notes = JSON.parse(localStorage.getItem('notes')) || {};
+    let currentSura = 1;
+    let isPlaying = false;
+    let synth = window.speechSynthesis;
+    let currentFontSize = 16;
 
-// DOM Elements - Home Page
-const startButton = document.getElementById('start-button');
+    // Contenu des 44 sourates en arabe, anglais et français avec paragraphes pour les 5 premières
+    const suraContents = {
+        1: {
+            ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ",
+            en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Praise be to Allah, the Lord of all the worlds",
+            fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Louange à Allah, Seigneur des mondes",
+            paragraphs: {
+                ar: [
+                    "سورة الفاتحة هي أول سورة في القرآن الكريم وتُعتبر مفتاح القرآن. تُسمى أيضًا أم الكتاب لأنها تُلخص المبادئ الأساسية للإيمان والعبادة.",
+                    "تتضمن هذه السورة الدعاء والتضرع إلى الله، حيث يطلب المؤمن الهداية إلى الصراط المستقيم، مما يجعلها ركيزة أساسية في الصلاة اليومية."
+                ],
+                en: [
+                    "Surah Al-Fatiha is the first chapter of the Quran and is considered the key to the Quran. It is also called the Mother of the Book as it encapsulates the fundamental principles of faith and worship.",
+                    "This surah includes a supplication and plea to Allah, where the believer seeks guidance on the straight path, making it a cornerstone of daily prayers."
+                ],
+                fr: [
+                    "La sourate Al-Fatiha est le premier chapitre du Coran et est considérée comme la clé du Coran. Elle est aussi appelée la Mère du Livre, car elle résume les principes fondamentaux de la foi et de l'adoration.",
+                    "Cette sourate comprend une supplication et une imploration à Allah, où le croyant demande la guidance sur le droit chemin, ce qui en fait une base essentielle des prières quotidiennes."
+                ]
+            }
+        },
+        2: {
+            ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>ذَٰلِكَ ٱلْكِتَٰبُ لَا رَيْبَ ۖ فِيهِ هُدًى لِّلْمُتَّقِينَ",
+            en: "In the name of Allah, the Most Gracious, the Most Merciful<br>This is the Book about which there is no doubt, a guidance for those conscious of Allah",
+            fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Ceci est le Livre au sujet duquel il n'y a aucun doute, un guide pour les pieux",
+            paragraphs: {
+                ar: [
+                    "سورة البقرة هي أطول سورة في القرآن الكريم، وهي سورة مدنية تتناول العديد من الأحكام والتشريعات التي تنظم حياة المسلمين.",
+                    "تبدأ السورة بالحديث عن القرآن ككتاب هداية، وتؤكد على أهمية التقوى والإيمان بالله كأساس لفهم الدين وتطبيق تعاليمه."
+                ],
+                en: [
+                    "Surah Al-Baqarah is the longest chapter in the Quran, a Medinan surah that addresses many laws and regulations governing the lives of Muslims.",
+                    "The surah begins by discussing the Quran as a book of guidance, emphasizing the importance of piety and faith in Allah as the foundation for understanding and applying its teachings."
+                ],
+                fr: [
+                    "La sourate Al-Baqarah est la plus longue sourate du Coran, une sourate médinoise qui aborde de nombreuses lois et règles régissant la vie des musulmans.",
+                    "La sourate commence par parler du Coran comme un livre de guidance, soulignant l'importance de la piété et de la foi en Allah comme fondement pour comprendre et appliquer ses enseignements."
+                ]
+            }
+        },
+        3: {
+            ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>الم ۝ ٱللَّهُ لَآ إِلَٰهَ إِلَّا هُوَ ٱلْحَىُّ ٱلْقَيُّومُ",
+            en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Alif Lam Mim. Allah, there is no deity except Him, the Ever-Living, the Sustainer of existence",
+            fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Alif Lam Mim. Allah, il n'y a de divinité sauf Lui, le Vivant, le Subsistant",
+            paragraphs: {
+                ar: [
+                    "سورة آل عمران هي سورة مدنية تُركز على تعزيز الإيمان وتوحيد الله، وتتناول قصص الأنبياء وأهمية الصبر والثبات في مواجهة التحديات.",
+                    "تؤكد هذه السورة على وحدانية الله وصفاته العظيمة، مما يدعو المؤمنين إلى التفكر في عظمة الخالق والالتزام بتعاليمه."
+                ],
+                en: [
+                    "Surah Aal-E-Imran is a Medinan surah that focuses on strengthening faith and the oneness of Allah, addressing stories of prophets and the importance of patience and steadfastness in facing challenges.",
+                    "This surah emphasizes the oneness of Allah and His great attributes, encouraging believers to reflect on the Creator’s majesty and adhere to His teachings."
+                ],
+                fr: [
+                    "La sourate Aal-E-Imran est une sourate médinoise qui met l'accent sur le renforcement de la foi et l'unicité d'Allah, abordant les histoires des prophètes et l'importance de la patience et de la fermeté face aux défis.",
+                    "Cette sourate insiste sur l'unicité d'Allah et Ses attributs grandioses, incitant les croyants à réfléchir sur la majesté du Créateur et à suivre Ses enseignements."
+                ]
+            }
+        },
+        4: {
+            ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>يَٰٓأَيُّهَا ٱلنَّاسُ ٱتَّقُوا۟ رَبَّكُمُ ٱلَّذِى خَلَقَكُم",
+            en: "In the name of Allah, the Most Gracious, the Most Merciful<br>O mankind, fear your Lord, who created you from one soul...",
+            fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Ô hommes, craignez votre Seigneur qui vous a créés d'une seule âme...",
+            paragraphs: {
+                ar: [
+                    "سورة النساء هي سورة مدنية تُركز على حقوق المرأة والعدالة الاجتماعية، مع التأكيد على أهمية تقوى الله في جميع التعاملات.",
+                    "تتناول السورة مواضيع مثل الميراث، الزواج، والمعاملات العادلة، داعية إلى بناء مجتمع قائم على العدل والرحمة."
+                ],
+                en: [
+                    "Surah An-Nisa is a Medinan surah that focuses on women’s rights and social justice, emphasizing the importance of God-consciousness in all dealings.",
+                    "The surah addresses topics such as inheritance, marriage, and fair transactions, calling for the establishment of a society based on justice and compassion."
+                ],
+                fr: [
+                    "La sourate An-Nisa est une sourate médinoise qui se concentre sur les droits des femmes et la justice sociale, soulignant l'importance de la conscience de Dieu dans toutes les interactions.",
+                    "La sourate aborde des sujets tels que l'héritage, le mariage et les transactions équitables, appelant à la construction d'une société fondée sur la justice et la compassion."
+                ]
+            }
+        },
+        5: {
+            ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوٓا۟ أَوْفُوا۟ بِٱلْعُقُودِ",
+            en: "In the name of Allah, the Most Gracious, the Most Merciful<br>O you who have believed, fulfill [all] contracts...",
+            fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Ô vous qui avez cru, remplissez les contrats...",
+            paragraphs: {
+                ar: [
+                    "سورة المائدة هي سورة مدنية تُركز على الأحكام الشرعية والعقود، مع التأكيد على أهمية الوفاء بالعهود والالتزام بالأخلاق.",
+                    "تتضمن السورة توجيهات حول العلاقات مع أهل الكتاب، وتدعو إلى العدل والإحسان في التعامل مع الآخرين."
+                ],
+                en: [
+                    "Surah Al-Ma’idah is a Medinan surah that focuses on legal rulings and contracts, emphasizing the importance of fulfilling commitments and adhering to ethical principles.",
+                    "The surah includes guidance on relations with the People of the Book and calls for justice and kindness in dealing with others."
+                ],
+                fr: [
+                    "La sourate Al-Ma’idah est une sourate médinoise qui se concentre sur les règles juridiques et les contrats, soulignant l'importance de respecter les engagements et d'adhérer aux principes éthiques.",
+                    "La sourate inclut des directives sur les relations avec les Gens du Livre et appelle à la justice et à la bienveillance dans les interactions avec autrui."
+                ]
+            }
+        },
+        6: {
+            ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوٓا۟ أَوْفُوا۟ بِٱلْعُقُودِ",
+            en: "In the name of Allah, the Most Gracious, the Most Merciful<br>O you who have believed, fulfill [all] contracts...",
+            fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Ô vous qui avez cru, remplissez les contrats...",
+            paragraphs: {
+                ar: [
+                    "سورة المائدة هي سورة مدنية تُركز على الأحكام الشرعية والعقود، مع التأكيد على أهمية الوفاء بالعهود والالتزام بالأخلاق.",
+                    "تتضمن السورة توجيهات حول العلاقات مع أهل الكتاب، وتدعو إلى العدل والإحسان في التعامل مع الآخرين."
+                ],
+                en: [
+                    "Surah Al-Ma’idah is a Medinan surah that focuses on legal rulings and contracts, emphasizing the importance of fulfilling commitments and adhering to ethical principles.",
+                    "The surah includes guidance on relations with the People of the Book and calls for justice and kindness in dealing with others."
+                ],
+                fr: [
+                    "La sourate Al-Ma’idah est une sourate médinoise qui se concentre sur les règles juridiques et les contrats, soulignant l'importance de respecter les engagements et d'adhérer aux principes éthiques.",
+                    "La sourate inclut des directives sur les relations avec les Gens du Livre et appelle à la justice et à la bienveillance dans les interactions avec autrui."
+                ]
+            }
+        },
+        7: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>ٱلْمِيمْ ۚ صَدَقَ ٱللَّهُ ٱلْعَزِيزُ ٱلْحَكِيمُ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Alif Lam Mim Sad. Allah has spoken the truth, the Exalted in Might, the Wise...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Alif Lam Mim Sad. Allah a dit la vérité, le Tout-Puissant, le Sage..." },
+        8: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>يَٰٓأَيُّهَا ٱلنَّبِىُّ ٱتَّقِ ٱللَّهَ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>O Prophet, fear Allah...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Ô Prophète, crains Allah..." },
+        9: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>بَرَاءَةٌ مِّنَ ٱللَّهِ وَرَسُولِهِ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Freedom from obligation from Allah and His Messenger...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Dissociation d'Allah et de Son Messager..." },
+        10: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>ٱلْحَمْدُ لِلَّهِ ٱلَّذِىٓ أَنزَلَ عَلَىٰ عَبْدِهِ ٱلْكِتَٰبَ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Praise be to Allah, who has sent down to His servant the Book...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Louange à Allah, qui a fait descendre sur Son serviteur le Livre..." },
+        11: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>ٱلر ۚ كِتَٰبٌ أُنزِلَ إِلَيْكَ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Alif Lam Ra. A Book which is revealed unto you...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Alif Lam Ra. Un Livre qui t'a été révélé..." },
+        12: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>ٱلر ۚ تِلْكَ آيَٰتُ ٱلْكِتَٰبِ ٱلْمُبِينِ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Alif Lam Ra. These are the verses of the clear Book...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Alif Lam Ra. Ce sont les versets du Livre clair..." },
+        13: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>ٱلْمِيمْ ۚ ٱلر ۚ كِتَٰبٌ أُنزِلَ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Alif Lam Mim Ra. A Book which is revealed...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Alif Lam Mim Ra. Un Livre qui est révélé..." },
+        14: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>ٱلر ۚ كِتَٰبٌ أَنْزَلْنَٰهُ إِلَيْكَ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Alif Lam Ra. A Book which We have revealed unto you...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Alif Lam Ra. Un Livre que Nous t'avons révélé..." },
+        15: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>ٱلر ۚ تِلْكَ آيَٰتُ ٱلْكِتَٰبِ وَقُرْآنٍ مُّبِينٍ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Alif Lam Ra. These are the verses of the Book and a clear Qur'an...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Alif Lam Ra. Ce sont les versets du Livre et un Coran clair..." },
+        16: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>ٱلْحَمْدُ لِلَّهِ ٱلَّذِى خَلَقَ ٱلسَّمَٰوَٰتِ وَٱلْأَرْضَ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Praise be to Allah, who created the heavens and the earth...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Louange à Allah, qui a créé les cieux et la terre..." },
+        17: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>سُبْحَٰنَ ٱلَّذِىٓ أَسْرَىٰ بِعَبْدِهِ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Glorified is He who took His servant by night...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Glorifié soit Celui qui a conduit Son serviteur..." },
+        18: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>ٱلْحَمْدُ لِلَّهِ ٱلَّذِىٓ أَنْزَلَ عَلَىٰ عَبْدِهِ ٱلْكِتَٰبَ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Praise be to Allah, who has sent down to His servant the Book...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Louange à Allah, qui a fait descendre sur Son serviteur le Livre..." },
+        19: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>كَهْيَعَصٓ ۚ ذِكْرُ رَحْمَتِ رَبِّكَ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Kaf Ha Ya Ain Sad. A mention of the mercy of your Lord...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Kaf Ha Ya Ain Sad. Un rappel de la miséricorde de ton Seigneur..." },
+        20: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>طٰهٓ ۚ مَآ أَنزَلْنَا عَلَيْكَ ٱلْقُرْءَانَ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Ta Ha. We have not sent down to you the Qur'an...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Ta Ha. Nous ne t'avons pas fait descendre le Coran..." },
+        21: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>ٱقْتَرَبَ لِلنَّاسِ حِسَابُهُمْ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>[The time of] their account has approached for mankind...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Le compte des hommes s'est approché..." },
+        22: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>يَٰٓأَيُّهَا ٱلنَّاسُ ٱتَّقُوا۟ رَبَّكُمْ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>O mankind, fear your Lord...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Ô hommes, craignez votre Seigneur..." },
+        23: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>قَدْ أَفْلَحَ ٱلْمُؤْمِنُونَ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Certainly will the believers have succeeded...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Les croyants ont certes réussi..." },
+        24: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>سُورَةٌ أَنزَلْنَٰهَا", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>[This is] a surah which We have sent down...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>[Ceci est] une sourate que Nous avons fait descendre..." },
+        25: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>تَبَارَكَ ٱلَّذِى نَزَّلَ ٱلْفُرْقَانَ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Blessed is He who sent down the Criterion...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Béni soit Celui qui a fait descendre le Discernement..." },
+        26: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>طٰسٓمٓ ۚ تِلْكَ آيَٰتُ ٱلْقُرْءَانِ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Ta Sin Mim. These are the verses of the clear Book...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Ta Sin Mim. Ce sont les versets du Coran clair..." },
+        27: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>طٰسٓ ۚ تِلْكَ آيَٰتُ ٱلْقُرْءَانِ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Ta Sin. These are the verses of the Qur'an...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Ta Sin. Ce sont les versets du Coran..." },
+        28: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>طٰسٓمٓ ۚ تِلْكَ آيَٰتُ ٱلْكِتَٰبِ ٱلْمُبِينِ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Ta Sin Mim. These are the verses of the clear Book...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Ta Sin Mim. Ce sont les versets du Livre clair..." },
+        29: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>الم ۚ أَحَسِبَ ٱلنَّاسُ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Alif Lam Mim. Do the people think...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Alif Lam Mim. Les gens pensent-ils..." },
+        30: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>الم ۚ غُلِبَتِ ٱلرُّومُ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Alif Lam Mim. The Romans have been defeated...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Alif Lam Mim. Les Romains ont été vaincus..." },
+        31: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>الم ۚ تِلْكَ آيَٰتُ ٱلْكِتَٰبِ ٱلْحَكِيمِ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Alif Lam Mim. These are the verses of the wise Book...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Alif Lam Mim. Ce sont les versets du Livre sage..." },
+        32: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>الم ۚ تَنْزِيلُ ٱلْكِتَٰبِ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Alif Lam Mim. The revelation of the Book...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Alif Lam Mim. La révélation du Livre..." },
+        33: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>يَٰٓأَيُّهَا ٱلنَّبِىُّ ٱتَّقِ ٱللَّهَ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>O Prophet, fear Allah...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Ô Prophète, crains Allah..." },
+        34: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>ٱلْحَمْدُ لِلَّهِ ٱلَّذِى لَهُۥ مَا فِى ٱلسَّمَٰوَٰتِ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Praise be to Allah, to whom belongs whatever is in the heavens...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Louange à Allah, à qui appartient ce qui est dans les cieux..." },
+        35: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>ٱلْحَمْدُ لِلَّهِ فَاطِرِ ٱلسَّمَٰوَٰتِ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Praise be to Allah, Creator of the heavens...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Louange à Allah, Créateur des cieux..." },
+        36: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>يٰسٓ ۚ وَٱلْقُرْءَانِ ٱلْحَكِيمِ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Ya Sin. By the wise Qur'an...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Ya Sin. Par le Coran sage..." },
+        37: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>وَٱلصَّٰفَّاتِ صَفًّا", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>By those [angels] lined up in rows...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Par ceux qui sont rangés en rangs..." },
+        38: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>صٓ ۚ وَٱلْقُرْءَانِ ذِى ٱلذِّكْرِ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Sad. By the Qur'an containing reminder...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Sad. Par le Coran porteur de rappel..." },
+        39: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>ٱلْحَمْدُ لِلَّهِ ٱلَّذِىٓ أَنزَلَ عَلَىٰ عَبْدِهِ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Praise be to Allah, who has sent down upon His servant...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Louange à Allah, qui a fait descendre sur Son serviteur..." },
+        40: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>حم ۚ تَنزِيلُ ٱلْكِتَٰبِ مِنَ ٱللَّهِ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Ha Mim. The revelation of the Book is from Allah...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Ha Mim. La révélation du Livre vient d'Allah..." },
+        41: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>حم ۚ عَسَقَ ۚ كِتَٰبٌ فُصِّلَتْ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Ha Mim. Ha Mim. A Book whose verses are detailed...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Ha Mim. Ha Mim. Un Livre dont les versets sont détaillés..." },
+        42: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>حم ۚ عَسَقَ ۚ عَسْقَ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Ha Mim. Ha Mim. Ha Mim Ain Sin Qaf...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Ha Mim. Ha Mim. Ha Mim Ain Sin Qaf..." },
+        43: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>حم ۚ وَٱلْكِتَٰبِ ٱلْمُبِينِ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Ha Mim. By the clear Book...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Ha Mim. Par le Livre clair..." },
+        44: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>حم ۚ وَٱلْكِتَٰبِ ٱلْمُبِينِ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Ha Mim. By the clear Book...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Ha Mim. Par le Livre clair..." }
+    };
 
-// DOM Elements - Sommaire Page
-const chaptersList = document.getElementById('chapters-list');
-
-// DOM Elements - Reading Page
-const readingChapterTitle = document.getElementById('reading-chapter-title');
-const chapterContent = document.getElementById('chapter-content');
-const themeToggle = document.getElementById('theme-toggle');
-const langToggle = document.getElementById('lang-toggle');
-const zoomInButton = document.getElementById('zoom-in');
-const zoomOutButton = document.getElementById('zoom-out');
-const readAloudToggle = document.getElementById('read-aloud-toggle');
-const favoriteChapterButton = document.getElementById('favorite-chapter');
-const scrollUpButton = document.getElementById('scroll-up');
-const scrollDownButton = document.getElementById('scroll-down');
-const backToSommaireButton = document.getElementById('back-to-sommaire');
-
-// DOM Elements - Favorites Page
-const favoritesList = document.getElementById('favorites-list');
-const noFavoritesMessage = document.getElementById('no-favorites-message');
-
-// DOM Elements - Settings Page
-const backFromSettingsButton = document.getElementById('back-from-settings');
-const loginRegisterButton = document.getElementById('login-register-button');
-const logoutButton = document.getElementById('logout-button');
-const changePasswordButton = document.getElementById('change-password-button');
-const userNameDisplay = document.getElementById('user-name-display'); // Changed from userPhoto to userNameDisplay
-
-const settingsThemeToggle = document.getElementById('settings-theme-toggle');
-const settingsLangToggle = document.getElementById('settings-lang-toggle');
-const settingsZoomIn = document.getElementById('settings-zoom-in');
-const settingsZoomOut = document.getElementById('settings-zoom-out');
-
-// DOM Elements - Navigation
-const bottomNav = document.querySelector('.bottom-nav');
-const navItems = document.querySelectorAll('.nav-item');
-
-// DOM Elements - Chat Modal
-const chatFabSommaire = document.getElementById('chat-fab-sommaire');
-const chatFabReading = document.getElementById('chat-fab-reading');
-const chatFabFavorites = document.getElementById('chat-fab-favorites');
-const chatModal = document.getElementById('chat-modal');
-const closeChatButton = document.querySelector('.close-chat');
-const chatHistory = document.getElementById('chat-history');
-const chatInput = document.getElementById('chat-input');
-const sendChatButton = document.getElementById('send-chat-button');
-
-// DOM Elements - Auth Modal
-const authModal = document.getElementById('auth-modal');
-const closeAuthButton = document.querySelector('.close-auth');
-const authTitle = document.getElementById('auth-title');
-const authForm = document.getElementById('auth-form');
-const authEmail = document.getElementById('auth-email');
-const authPassword = document.getElementById('auth-password');
-const authSubmit = document.getElementById('auth-submit');
-const toggleToRegister = document.getElementById('toggle-to-register');
-const toggleToLogin = document.getElementById('toggle-to-login');
-let isRegisterMode = false;
-
-
-// --- Utility Functions ---
-
-/**
- * Shows a specific page and updates navigation/FAB visibility.
- * @param {string} pageId The ID of the page (section) to show.
- */
-function showPage(pageId) {
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
+    // Navigation
+    document.querySelector('.start-btn').addEventListener('click', () => {
+        homePage.style.display = 'none';
+        indexPage.style.display = 'block';
     });
-    document.getElementById(pageId).classList.add('active');
 
-    // Update active state for bottom navigation
-    navItems.forEach(item => {
-        item.classList.remove('active');
-        if (item.dataset.target === pageId) {
-            item.classList.add('active');
+    document.querySelectorAll('.index-page li').forEach(li => {
+        li.addEventListener('click', () => {
+            currentSura = parseInt(li.getAttribute('data-sura'));
+            updateContent();
+            indexPage.style.display = 'none';
+            readingPage.style.display = 'block';
+        });
+    });
+
+    document.querySelectorAll('.close-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (indexPage.style.display !== 'none') {
+                indexPage.style.display = 'none';
+                homePage.style.display = 'block';
+            } else if (settingsPanel.style.display !== 'none') {
+                settingsPanel.style.display = 'none';
+                readingPage.style.display = 'block';
+            } else if (favoritesPage.style.display !== 'none') {
+                favoritesPage.style.display = 'none';
+                readingPage.style.display = 'block';
+            } else if (notesPage.style.display !== 'none') {
+                notesPage.style.display = 'none';
+                readingPage.style.display = 'block';
+            }
+        });
+    });
+
+    // Retour au sommaire depuis la page de lecture
+    document.querySelectorAll('.index-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            readingPage.style.display = 'none';
+            indexPage.style.display = 'block';
+            customizePanel.style.display = 'none';
+        });
+    });
+
+    // Navigation entre chapitres
+    document.querySelector('.prev-btn').addEventListener('click', () => {
+        if (currentSura > 1) {
+            currentSura--;
+            updateContent();
         }
     });
 
-    // Handle bottom nav visibility
-    if (pageId === 'home-page' || pageId === 'settings-page') {
-        bottomNav.style.display = 'none';
-    } else {
-        bottomNav.style.display = 'flex';
-    }
-
-    // Handle chat FAB visibility
-    [chatFabSommaire, chatFabReading, chatFabFavorites].forEach(fab => {
-        if (fab) fab.style.display = 'none';
+    document.querySelector('.next-btn').addEventListener('click', () => {
+        if (currentSura < 44) {
+            currentSura++;
+            updateContent();
+        }
     });
-    if (pageId === 'sommaire-page' && chatFabSommaire) {
-        chatFabSommaire.style.display = 'flex';
-    } else if (pageId === 'reading-page' && chatFabReading) {
-        chatFabReading.style.display = 'flex';
-    } else if (pageId === 'favorites-page' && chatFabFavorites) {
-        chatFabFavorites.style.display = 'flex';
-    }
 
-    // Stop speech synthesis if changing page
-    if (utterance && window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-        readAloudToggle.textContent = '🔊';
-    }
-}
+    // Paramètres
+    document.querySelector('.settings-btn').addEventListener('click', () => {
+        readingPage.style.display = 'none';
+        settingsPanel.style.display = 'block';
+    });
 
-/**
- * Toggles between dark and light mode.
- */
-function toggleTheme() {
-    document.body.classList.toggle('dark-mode');
-    localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
-}
+    languageSelect.addEventListener('change', () => {
+        updateContent();
+    });
 
-/**
- * Loads the saved theme preference.
- */
-function loadTheme() {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-        document.body.classList.add('dark-mode');
-    }
-}
+    themeSelect.addEventListener('change', (e) => {
+        document.body.className = e.target.value === 'dark' ? 'dark' : '';
+    });
 
-/**
- * Sets the application language.
- * @param {string} lang 'fr', 'en', or 'ar'.
- */
-function setLanguage(lang) {
-    currentLanguage = lang;
-    localStorage.setItem('language', lang);
-    alert(`Langue changée en : ${lang.toUpperCase()}. Le contenu des chapitres sera mis à jour lors de la lecture.`);
-    // Re-render sommaire to reflect language change in titles/summaries
-    renderChaptersList();
-    renderFavorites(); // Re-render favorites for language change
-    // If on reading page, reload chapter content
-    if (document.getElementById('reading-page').classList.contains('active') && currentChapterId) {
-        readChapter(currentChapterId); // Re-load the current chapter in new language
-    }
-}
+    fontSelect.addEventListener('change', (e) => {
+        arabicText.style.fontFamily = e.target.value;
+        textContent.style.fontFamily = e.target.value;
+    });
 
-/**
- * Loads the saved language preference.
- */
-function loadLanguage() {
-    const savedLang = localStorage.getItem('language');
-    if (savedLang) {
-        currentLanguage = savedLang;
-    }
-}
+    fontSize.addEventListener('input', (e) => {
+        arabicText.style.fontSize = `${e.target.value}px`;
+        textContent.style.fontSize = `${e.target.value}px`;
+    });
 
-/**
- * Adjusts the font size of the chapter content.
- * @param {number} delta The amount to change the font size by (e.g., 0.1 or -0.1).
- */
-function adjustFontSize(delta) {
-    currentFontSize = Math.max(0.8, Math.min(2.0, currentFontSize + delta)); // Min 0.8em, Max 2.0em
-    chapterContent.style.fontSize = `${currentFontSize}em`;
-    localStorage.setItem('fontSize', currentFontSize); // Save font size
-}
+    // Favoris
+    document.querySelector('.favorite-btn').addEventListener('click', () => {
+        if (!favorites.includes(currentSura) && currentSura >= 1 && currentSura <= 44) {
+            favorites.push(currentSura);
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            updateFavorites();
+        }
+    });
 
-/**
- * Loads the saved font size preference.
- */
-function loadFontSize() {
-    const savedFontSize = localStorage.getItem('fontSize');
-    if (savedFontSize) {
-        currentFontSize = parseFloat(savedFontSize);
-        chapterContent.style.fontSize = `${currentFontSize}em`;
-    }
-}
+    document.querySelector('.favorites-btn').addEventListener('click', () => {
+        favoritesPage.style.display = favoritesPage.style.display === 'none' ? 'block' : 'none';
+        readingPage.style.display = favoritesPage.style.display === 'block' ? 'none' : 'block';
+        updateFavorites();
+    });
 
-/**
- * Populates the speechVoices array with available voices.
- */
-function populateVoices() {
-    speechVoices = window.speechSynthesis.getVoices();
-    if (speechVoices.length === 0) {
-        window.speechSynthesis.onvoiceschanged = () => {
-            speechVoices = window.speechSynthesis.getVoices();
-            console.log('Voices loaded:', speechVoices.map(v => v.name));
-        };
-    } else {
-        console.log('Voices available:', speechVoices.map(v => v.name));
-    }
-}
-
-/**
- * Initiates or stops text-to-speech for the current chapter.
- * @param {string} text The text content to speak.
- */
-function speakText(text) {
-    if (!('speechSynthesis' in window)) {
-        alert('Votre navigateur ne prend pas en charge la lecture à voix haute.');
-        return;
-    }
-
-    if (utterance && window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-        readAloudToggle.textContent = '🔊';
-        clearInterval(autoScrollInterval); // Stop auto-scroll if speech is cancelled
-        return;
-    }
-
-    if (!text) {
-        alert('Aucun texte à lire.');
-        return;
-    }
-
-    utterance = new SpeechSynthesisUtterance(text);
-    // Map current language to BCP 47 language tags for better voice matching
-    let langCode = 'fr-FR'; // Default to French
-    if (currentLanguage === 'en') langCode = 'en-US';
-    else if (currentLanguage === 'ar') langCode = 'ar-SA';
-    utterance.lang = langCode;
-
-    // Cycle through voices for the current language
-    const langSpecificVoices = speechVoices.filter(voice => voice.lang.startsWith(utterance.lang.substring(0, 2)));
-
-    if (langSpecificVoices.length > 0) {
-        utterance.voice = langSpecificVoices[currentVoiceIndex % langSpecificVoices.length];
-        currentVoiceIndex = (currentVoiceIndex + 1) % langSpecificVoices.length; // Cycle to next voice
-    } else if (speechVoices.length > 0) {
-        // Fallback to any available voice if no language-specific voice found
-        utterance.voice = speechVoices[currentVoiceIndex % speechVoices.length];
-        currentVoiceIndex = (currentVoiceIndex + 1) % speechVoices.length;
-        console.warn('No specific voice for current language, using a general voice.');
-    } else {
-        console.warn('No voices found at all, using default browser voice.');
-    }
-
-    utterance.onend = () => {
-        readAloudToggle.textContent = '🔊';
-        clearInterval(autoScrollInterval);
-    };
-    utterance.onstart = () => {
-        readAloudToggle.textContent = '⏸️';
-        startAutoScroll(true); // Start auto-scroll when speech starts
-    };
-    utterance.onerror = (event) => {
-        console.error('Speech synthesis error:', event.error);
-        alert('Erreur de lecture à voix haute. Aucune voix disponible ou problème de navigateur.');
-        readAloudToggle.textContent = '🔊';
-        clearInterval(autoScrollInterval);
-    };
-
-    window.speechSynthesis.speak(utterance);
-}
-
-/**
- * Starts automatic scrolling of the chapter content.
- * @param {boolean} isReadingAloud True if initiated by read-aloud, affects speed.
- * @param {boolean} scrollUp True to scroll up, false to scroll down.
- */
-function startAutoScroll(isReadingAloud = false, scrollUp = false) {
-    if (autoScrollInterval) {
-        clearInterval(autoScrollInterval);
-    }
-    const scrollSpeed = isReadingAloud ? 0.5 : 5; // Slower for reading aloud
-    autoScrollInterval = setInterval(() => {
-        if (scrollUp) {
-            chapterContent.scrollBy(0, -scrollSpeed);
-            if (chapterContent.scrollTop <= 0) {
-                clearInterval(autoScrollInterval);
+    function updateFavorites() {
+        favoritesList.innerHTML = '';
+        favorites.forEach(sura => {
+            if (sura >= 1 && sura <= 44 && suraContents[sura]) {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="sura-number">${sura}</span> Surat ${sura}<br>Nombre aya ${suraContents[sura].ar.split('<br>').length - 1} <i class="fas fa-mosque"></i>`;
+                li.addEventListener('click', () => {
+                    currentSura = sura;
+                    updateContent();
+                    favoritesPage.style.display = 'none';
+                    readingPage.style.display = 'block';
+                });
+                favoritesList.appendChild(li);
             }
+        });
+    }
+    updateFavorites();
+
+    // Personnalisation
+    document.querySelector('.customize-btn').addEventListener('click', () => {
+        customizePanel.style.display = customizePanel.style.display === 'none' ? 'flex' : 'none';
+    });
+
+    document.querySelector('.close-customize-btn').addEventListener('click', () => {
+        customizePanel.style.display = 'none';
+    });
+
+    document.querySelectorAll('.color-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const content = document.getElementById('readingContent');
+            content.style.backgroundColor = btn.getAttribute('data-color');
+            // Appliquer la couleur au body pour éviter les espaces
+            document.body.style.backgroundColor = btn.getAttribute('data-color');
+        });
+    });
+
+    // Zoom
+    document.querySelector('.zoom-in-btn').addEventListener('click', () => {
+        currentFontSize = Math.min(currentFontSize + 2, 30);
+        arabicText.style.fontSize = `${currentFontSize}px`;
+        textContent.style.fontSize = `${currentFontSize}px`;
+    });
+
+    document.querySelector('.zoom-out-btn').addEventListener('click', () => {
+        currentFontSize = Math.max(currentFontSize - 2, 12);
+        arabicText.style.fontSize = `${currentFontSize}px`;
+        textContent.style.fontSize = `${currentFontSize}px`;
+    });
+
+    // Lecture à haute voix
+    document.querySelector('.voice-select-btn').addEventListener('click', () => {
+        voiceSelectPanel.style.display = voiceSelectPanel.style.display === 'none' ? 'block' : 'none';
+    });
+
+    document.querySelector('.close-voice-btn').addEventListener('click', () => {
+        voiceSelectPanel.style.display = 'none';
+    });
+
+    voicePlayBtn.addEventListener('click', () => {
+        if (isPlaying) {
+            synth.cancel();
+            isPlaying = false;
+            voicePlayBtn.innerHTML = '<i class="fas fa-play"></i> Lecture à haute voix';
         } else {
-            chapterContent.scrollBy(0, scrollSpeed);
-            if (chapterContent.scrollTop + chapterContent.clientHeight >= chapterContent.scrollHeight - 5) {
-                clearInterval(autoScrollInterval);
-                if (isReadingAloud && utterance && window.speechSynthesis.speaking) {
-                    window.speechSynthesis.cancel();
-                    readAloudToggle.textContent = '🔊';
+            const textToRead = languageSelect.value === 'ar' ? arabicText.innerText : textContent.innerText;
+            if (textToRead) {
+                const utterance = new SpeechSynthesisUtterance(textToRead);
+                const voices = synth.getVoices();
+                const selectedVoiceName = voiceSelect.value.split('-')[0].trim(); // Extrait le nom (ex. "Fatima")
+                utterance.voice = voices.find(voice => voice.name.toLowerCase().includes(selectedVoiceName.toLowerCase())) || voices[0];
+                utterance.lang = languageSelect.value === 'ar' ? 'ar-SA' : (languageSelect.value === 'en' ? 'en-US' : 'fr-FR');
+                synth.speak(utterance);
+                isPlaying = true;
+                voicePlayBtn.innerHTML = '<i class="fas fa-pause"></i> Lecture à haute voix';
+                utterance.onend = () => {
+                    isPlaying = false;
+                    voicePlayBtn.innerHTML = '<i class="fas fa-play"></i> Lecture à haute voix';
+                };
+            }
+        }
+    });
+
+    // Notes
+    document.querySelector('.note-btn').addEventListener('click', () => {
+        readingPage.style.display = 'none';
+        notesPage.style.display = 'block';
+        updateNotes();
+    });
+
+    document.querySelector('.add-category-btn').addEventListener('click', () => {
+        const categoryName = document.getElementById('newCategory').value.trim();
+        if (categoryName) {
+            if (!notes[categoryName]) {
+                notes[categoryName] = '';
+            }
+            localStorage.setItem('notes', JSON.stringify(notes));
+            updateNotes();
+            document.getElementById('newCategory').value = '';
+        }
+    });
+
+    function updateNotes() {
+        const categoriesList = document.getElementById('categoriesList');
+        categoriesList.innerHTML = '';
+        for (const category in notes) {
+            const div = document.createElement('div');
+            div.className = 'category';
+            div.innerHTML = `
+                <h3>${category}</h3>
+                <textarea>${notes[category]}</textarea>
+            `;
+            div.querySelector('textarea').addEventListener('input', (e) => {
+                notes[category] = e.target.value;
+                localStorage.setItem('notes', JSON.stringify(notes));
+            });
+            categoriesList.appendChild(div);
+        }
+    }
+
+    // Assistant IA
+    document.querySelector('.ai-btn').addEventListener('click', () => {
+        alert('Assistant IA : Posez une question sur le livre (API Gemini à intégrer)');
+    });
+
+    // Recherche intelligente
+    searchBar.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.trim().toLowerCase();
+        searchResults.style.display = searchTerm ? 'block' : 'none';
+        searchResults.innerHTML = '';
+
+        if (searchTerm) {
+            const allText = {};
+            for (let sura = 1; sura <= 44; sura++) {
+                ['ar', 'en', 'fr'].forEach(lang => {
+                    if (suraContents[sura] && suraContents[sura][lang]) {
+                        const lines = suraContents[sura][lang].split('<br>');
+                        lines.forEach((line, index) => {
+                            if (line.toLowerCase().includes(searchTerm)) {
+                                if (!allText[sura]) allText[sura] = {};
+                                if (!allText[sura][lang]) allText[sura][lang] = [];
+                                allText[sura][lang].push({ text: line, lineIndex: index });
+                            }
+                        });
+                    }
+                });
+            }
+
+            for (let sura in allText) {
+                for (let lang in allText[sura]) {
+                    allText[sura][lang].forEach(result => {
+                        const div = document.createElement('div');
+                        div.className = 'result-item';
+                        div.innerHTML = `<strong>Surat ${sura} (${lang.toUpperCase()})</strong><br>${result.text}`;
+                        div.addEventListener('click', () => {
+                            currentSura = parseInt(sura);
+                            languageSelect.value = lang;
+                            updateContent();
+                            const lines = suraContents[currentSura][lang].split('<br>');
+                            arabicText.innerHTML = suraContents[currentSura][lang];
+                            textContent.innerHTML = suraContents[currentSura][lang];
+                            if (lang === 'ar') {
+                                arabicText.style.display = 'block';
+                                textContent.style.display = 'none';
+                            } else {
+                                arabicText.style.display = 'none';
+                                textContent.style.display = 'block';
+                            }
+                            const targetElement = lang === 'ar' ? arabicText : textContent;
+                            const targetLines = targetElement.innerHTML.split('<br>');
+                            targetLines[result.lineIndex] = `<span style="background: yellow">${targetLines[result.lineIndex]}</span>`;
+                            targetElement.innerHTML = targetLines.join('<br>');
+                            targetElement.scrollTop = targetElement.scrollHeight * (result.lineIndex / targetLines.length);
+                            searchResults.style.display = 'none';
+                            searchBar.value = '';
+                        });
+                        searchResults.appendChild(div);
+                    });
                 }
             }
         }
-    }, 50); // Faster interval for smoother scroll
-}
+    });
 
-/**
- * Stops any ongoing automatic scrolling.
- */
-function stopAutoScroll() {
-    clearInterval(autoScrollInterval);
-}
-
-/**
- * Saves the user's favorite chapters to Firebase or localStorage.
- */
-async function saveFavorites() {
-    if (auth.currentUser) {
-        try {
-            await db.collection('users').doc(auth.currentUser.uid).set({
-                favorites: userFavorites
-            }, { merge: true });
-            console.log("Favorites saved to Firebase.");
-        } catch (error) {
-            console.error("Error saving favorites to Firebase:", error);
-        }
-    } else {
-        localStorage.setItem('userFavorites', JSON.stringify(userFavorites));
-        console.log("Favorites saved to Local Storage.");
-    }
-}
-
-/**
- * Loads the user's favorite chapters from Firebase or localStorage.
- */
-async function loadFavorites() {
-    if (auth.currentUser) {
-        try {
-            const doc = await db.collection('users').doc(auth.currentUser.uid).get();
-            if (doc.exists && doc.data().favorites) {
-                userFavorites = doc.data().favorites;
-                console.log("Favorites loaded from Firebase:", userFavorites);
+    // Connexion/Inscription
+    document.querySelectorAll('.auth-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const username = btn.parentElement.querySelector('input[type="text"]').value;
+            const password = btn.parentElement.querySelector('input[type="password"]').value;
+            if (btn.textContent === 'Se connecter') {
+                auth.signInWithEmailAndPassword(username, password)
+                    .then((userCredential) => {
+                        alert(`Connexion réussie avec ${username}`);
+                    })
+                    .catch((error) => {
+                        alert('Erreur de connexion : ' + error.message);
+                    });
             } else {
-                userFavorites = [];
-                console.log("No favorites found in Firebase or document does not exist.");
-            }
-        } catch (error) {
-            console.error("Error loading favorites from Firebase:", error);
-            userFavorites = []; // Fallback to empty if error
-        }
-    } else {
-        const savedFavorites = localStorage.getItem('userFavorites');
-        if (savedFavorites) {
-            userFavorites = JSON.parse(savedFavorites);
-            console.log("Favorites loaded from Local Storage:", userFavorites);
-        } else {
-            userFavorites = [];
-            console.log("No favorites found in Local Storage.");
-        }
-    }
-    renderFavorites(); // Always render favorites after loading
-}
-
-/**
- * Renders the list of favorite chapters on the favorites page.
- */
-function renderFavorites() {
-    favoritesList.innerHTML = ''; // Clear current favorites
-    if (userFavorites.length === 0) {
-        noFavoritesMessage.style.display = 'block';
-    } else {
-        noFavoritesMessage.style.display = 'none';
-        userFavorites.forEach(chapterId => {
-            const chapter = content.chapters.find(c => c.id === chapterId);
-            if (chapter) {
-                const chapterItem = document.createElement('div');
-                chapterItem.classList.add('chapter-item');
-                chapterItem.innerHTML = `
-                    <h3>${chapter.title[currentLanguage]}</h3>
-                    <p>${chapter.summary[currentLanguage]}</p>
-                `;
-                chapterItem.addEventListener('click', () => {
-                    readChapter(chapter.id);
-                });
-                favoritesList.appendChild(chapterItem);
+                auth.createUserWithEmailAndPassword(username, password)
+                    .then((userCredential) => {
+                        alert(`Inscription réussie pour ${username}`);
+                    })
+                    .catch((error) => {
+                        alert('Erreur d\'inscription : ' + error.message);
+                    });
             }
         });
-    }
-}
-
-
-// --- Event Listeners ---
-
-startButton.addEventListener('click', () => showPage('sommaire-page'));
-
-navItems.forEach(item => {
-    item.addEventListener('click', (e) => {
-        e.preventDefault();
-        const targetPage = item.dataset.target;
-        if (targetPage === 'settings-page') {
-            // Save current page before going to settings
-            lastPageBeforeSettings = document.querySelector('.page.active').id;
-        }
-        showPage(targetPage);
     });
-});
 
-themeToggle.addEventListener('click', toggleTheme);
-settingsThemeToggle.addEventListener('click', toggleTheme);
-
-langToggle.addEventListener('click', () => {
-    const newLang = currentLanguage === 'fr' ? 'en' : (currentLanguage === 'en' ? 'ar' : 'fr');
-    setLanguage(newLang);
-});
-
-settingsLangToggle.addEventListener('click', () => {
-    const newLang = currentLanguage === 'fr' ? 'en' : (currentLanguage === 'en' ? 'ar' : 'fr');
-    setLanguage(newLang);
-});
-
-zoomInButton.addEventListener('click', () => adjustFontSize(0.1));
-zoomOutButton.addEventListener('click', () => adjustFontSize(-0.1));
-settingsZoomIn.addEventListener('click', () => adjustFontSize(0.1));
-settingsZoomOut.addEventListener('click', () => adjustFontSize(-0.1));
-
-readAloudToggle.addEventListener('click', () => {
-    const textToSpeak = chapterContent.textContent; // Use textContent for plain text for speech
-    if (textToSpeak) {
-        speakText(textToSpeak);
-    } else {
-        alert("Aucun texte à lire.");
-    }
-});
-
-scrollUpButton.addEventListener('mousedown', () => startAutoScroll(false, true));
-scrollUpButton.addEventListener('mouseup', stopAutoScroll);
-scrollUpButton.addEventListener('mouseleave', stopAutoScroll);
-scrollUpButton.addEventListener('touchend', stopAutoScroll); // For mobile
-
-scrollDownButton.addEventListener('mousedown', () => startAutoScroll(false, false));
-scrollDownButton.addEventListener('mouseup', stopAutoScroll);
-scrollDownButton.addEventListener('mouseleave', stopAutoScroll);
-scrollDownButton.addEventListener('touchend', stopAutoScroll); // For mobile
-
-backToSommaireButton.addEventListener('click', () => showPage('sommaire-page'));
-backFromSettingsButton.addEventListener('click', () => showPage(lastPageBeforeSettings));
-
-
-// --- Anti-copy/paste measures (client-side, not foolproof) ---
-document.addEventListener('contextmenu', e => e.preventDefault()); // Disable right-click
-document.addEventListener('copy', e => { e.preventDefault(); alert('Copie de contenu désactivée.'); });
-document.addEventListener('cut', e => { e.preventDefault(); alert('Couper le contenu désactivé.'); });
-document.addEventListener('selectstart', e => { e.preventDefault(); }); // Disable text selection
-
-document.addEventListener('keydown', (e) => {
-    // Prevent print (Ctrl+P or Cmd+P)
-    if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
-        e.preventDefault();
-        alert('L\'impression de contenu est désactivée.');
-    }
-    // Prevent Dev Tools (F12)
-    if (e.key === 'F12') {
-        e.preventDefault();
-        alert('Les outils de développement sont désactivés pour cette page.');
-    }
-    // Prevent common dev tool shortcuts (Ctrl+Shift+I, J, C)
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) {
-        e.preventDefault();
-        alert('Les outils de développement sont désactivés pour cette page.');
-    }
-});
-
-// --- Chapter Loading & Favorites ---
-
-/**
- * Renders the list of all chapters on the Table of Contents page.
- */
-function renderChaptersList() {
-    chaptersList.innerHTML = '';
-    content.chapters.forEach(chapter => {
-        const chapterItem = document.createElement('div');
-        chapterItem.classList.add('chapter-item');
-        chapterItem.setAttribute('data-chapter-id', chapter.id); // Add data attribute for easier identification
-        chapterItem.innerHTML = `
-            <h3>${chapter.title[currentLanguage]}</h3>
-            <p>${chapter.summary[currentLanguage]}</p>
-        `;
-        chapterItem.addEventListener('click', () => {
-            readChapter(chapter.id);
-        });
-        chaptersList.appendChild(chapterItem);
-    });
-}
-
-/**
- * Loads and displays the content of a specific chapter on the reading page.
- * @param {string} chapterId The ID of the chapter to read.
- */
-function readChapter(chapterId) {
-    const chapter = content.chapters.find(c => c.id === chapterId);
-    if (chapter) {
-        currentChapterId = chapterId;
-        readingChapterTitle.textContent = chapter.title[currentLanguage];
-        chapterContent.innerHTML = chapter.text[currentLanguage]; // Use innerHTML for paragraphs
-        chapterContent.scrollTop = 0; // Reset scroll position to top
-
-        // Apply current font size
-        chapterContent.style.fontSize = `${currentFontSize}em`;
-
-        // Update favorite button state
-        if (userFavorites.includes(chapterId)) {
-            favoriteChapterButton.classList.add('favorited');
-        } else {
-            favoriteChapterButton.classList.remove('favorited');
-        }
-
-        showPage('reading-page');
-    } else {
-        alert("Chapitre non trouvé.");
-        showPage('sommaire-page'); // Go back to sommaire if chapter not found
-    }
-}
-
-favoriteChapterButton.addEventListener('click', () => {
-    if (!currentChapterId) return; // Ensure a chapter is being read
-
-    const index = userFavorites.indexOf(currentChapterId);
-    if (index > -1) {
-        // Remove from favorites
-        userFavorites.splice(index, 1);
-        favoriteChapterButton.classList.remove('favorited');
-        alert('Chapitre retiré des favoris.');
-    } else {
-        // Add to favorites
-        userFavorites.push(currentChapterId);
-        favoriteChapterButton.classList.add('favorited');
-        alert('Chapitre ajouté aux favoris !');
-    }
-    saveFavorites(); // Save changes to Firebase or local storage
-    // No need to call renderFavorites() immediately unless on favorites page,
-    // as it will be called when navigating to favorites page.
-});
-
-
-// --- Firebase Authentication ---
-loginRegisterButton.addEventListener('click', () => {
-    authModal.style.display = 'flex';
-    isRegisterMode = false;
-    authTitle.textContent = 'Connexion';
-    authSubmit.textContent = 'Se connecter';
-    toggleToRegister.style.display = 'inline';
-    toggleToLogin.style.display = 'none';
-    authEmail.value = '';
-    authPassword.value = '';
-});
-
-closeAuthButton.addEventListener('click', () => {
-    authModal.style.display = 'none';
-});
-
-toggleToRegister.addEventListener('click', () => {
-    isRegisterMode = true;
-    authTitle.textContent = 'Inscription';
-    authSubmit.textContent = 'S\'inscrire';
-    toggleToRegister.style.display = 'none';
-    toggleToLogin.style.display = 'inline';
-});
-
-toggleToLogin.addEventListener('click', () => {
-    isRegisterMode = false;
-    authTitle.textContent = 'Connexion';
-    authSubmit.textContent = 'Se connecter';
-    toggleToRegister.style.display = 'inline';
-    toggleToLogin.style.display = 'none';
-});
-
-authForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = authEmail.value;
-    const password = authPassword.value;
-
-    try {
-        if (isRegisterMode) {
-            await auth.createUserWithEmailAndPassword(email, password);
-            alert('Inscription réussie !');
-            // Optional: prompt for first name/last name after registration
-            // const fullName = prompt('Entrez votre nom et prénom (ex: John Doe):');
-            // if (fullName) {
-            //     await auth.currentUser.updateProfile({ displayName: fullName });
-            // }
-        } else {
-            await auth.signInWithEmailAndPassword(email, password);
-            alert('Connexion réussie !');
-        }
-        authModal.style.display = 'none';
-    } catch (error) {
-        alert(`Erreur d'authentification: ${error.message}`);
-        console.error('Auth error:', error);
-    }
-});
-
-logoutButton.addEventListener('click', async () => {
-    try {
-        await auth.signOut();
-        alert('Déconnexion réussie !');
-    } catch (error) {
-        alert(`Erreur de déconnexion: ${error.message}`);
-        console.error('Logout error:', error);
-    }
-});
-
-changePasswordButton.addEventListener('click', async () => {
-    // Firebase requires re-authentication for sensitive operations like password change
-    // For simplicity here, we'll just prompt. In a real app, you'd re-authenticate.
-    const newPassword = prompt('Entrez votre nouveau mot de passe (min 6 caractères):');
-    if (newPassword === null) return; // User cancelled
-
-    if (newPassword.length >= 6) {
-        try {
-            await auth.currentUser.updatePassword(newPassword);
-            alert('Mot de passe changé avec succès !');
-        } catch (error) {
-            if (error.code === 'auth/requires-recent-login') {
-                alert('Veuillez vous reconnecter pour changer votre mot de passe.');
-                authModal.style.display = 'flex'; // Show login modal
-                isRegisterMode = false;
-                authTitle.textContent = 'Reconnexion requise';
-                authSubmit.textContent = 'Se reconnecter';
-            } else {
-                alert(`Erreur de changement de mot de passe: ${error.message}`);
+    function updateContent() {
+        const content = suraContents[currentSura] && suraContents[currentSura][languageSelect.value];
+        suraTitle.textContent = `Surat ${currentSura}`;
+        if (content) {
+            const lines = content.split('<br>');
+            const bismillahLine = lines[0];
+            const rest = lines.slice(1).join('<br>');
+            let paragraphs = '';
+            if (suraContents[currentSura].paragraphs && suraContents[currentSura].paragraphs[languageSelect.value]) {
+                paragraphs = suraContents[currentSura].paragraphs[languageSelect.value]
+                    .map((para, index) => `<p class="sura-paragraph">${index + 1}. ${para}</p>`)
+                    .join('');
             }
-            console.error('Password change error:', error);
-        }
-    } else {
-        alert('Le mot de passe doit contenir au moins 6 caractères.');
-    }
-});
-
-// Firebase Auth State Listener
-auth.onAuthStateChanged(user => {
-    if (user) {
-        // User is signed in.
-        userNameDisplay.textContent = user.displayName || user.email; // Display name if available, else email
-        loginRegisterButton.style.display = 'none';
-        logoutButton.style.display = 'block';
-        changePasswordButton.style.display = 'block';
-        loadFavorites(); // Load user-specific favorites from Firestore
-    } else {
-        // User is signed out.
-        userNameDisplay.textContent = 'Invité'; // Or "Nom Prénom" as a placeholder
-        loginRegisterButton.style.display = 'block';
-        logoutButton.style.display = 'none';
-        changePasswordButton.style.display = 'none';
-        userFavorites = []; // Clear user-specific favorites
-        loadFavorites(); // Load local storage favorites if no user is logged in
-    }
-});
-
-
-// --- AI Chatbot ---
-
-chatFabSommaire.addEventListener('click', () => chatModal.style.display = 'flex');
-chatFabReading.addEventListener('click', () => chatModal.style.display = 'flex');
-chatFabFavorites.addEventListener('click', () => chatModal.style.display = 'flex');
-closeChatButton.addEventListener('click', () => chatModal.style.display = 'none');
-
-sendChatButton.addEventListener('click', handleChat);
-chatInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        handleChat();
-    }
-});
-
-/**
- * Adds a message to the chat history.
- * @param {string} message The text of the message.
- * @param {string} sender 'user' or 'ai'.
- */
-function addChatMessage(message, sender) {
-    const msgDiv = document.createElement('div');
-    msgDiv.classList.add('chat-message', sender);
-    msgDiv.textContent = message;
-    chatHistory.appendChild(msgDiv);
-    chatHistory.scrollTop = chatHistory.scrollHeight; // Scroll to bottom
-}
-
-/**
- * Handles user input in the chat and generates an AI response.
- */
-async function handleChat() {
-    const userQuestion = chatInput.value.trim();
-    if (!userQuestion) return;
-
-    addChatMessage(userQuestion, 'user');
-    chatInput.value = '';
-
-    // Simulate AI response based on the book content
-    // For a real AI, you'd send this to a backend with a sophisticated LLM (e.g., Gemini API)
-    const aiResponse = generateAiResponse(userQuestion);
-    addChatMessage(aiResponse, 'ai');
-}
-
-/**
- * Generates a simulated AI response based on the user's question and current context.
- * This is a basic rule-based AI.
- * @param {string} question The user's question.
- * @returns {string} The AI's response.
- */
-function generateAiResponse(question) {
-    const lowerQuestion = question.toLowerCase();
-    let response = "Désolé, je ne peux répondre qu'aux questions concernant le contenu du livre ou les fonctionnalités du site.";
-
-    if (lowerQuestion.includes("bonjour") || lowerQuestion.includes("salut")) {
-        response = "Bonjour ! Comment puis-je vous aider avec le livre 'La Voie du Salut' ?";
-    } else if (lowerQuestion.includes("titre du livre")) {
-        response = `Le titre du livre est "La Voie du Salut".`;
-    } else if (lowerQuestion.includes("nombre de chapitres")) {
-        response = `Le livre contient ${content.chapters.length} chapitres.`;
-    } else if (lowerQuestion.includes("auteur")) {
-        response = `L'auteur de ce récit est une intelligence artificielle au service de l'imagination.`;
-    } else if (lowerQuestion.includes("thème du livre")) {
-        response = "Le livre explore des thèmes comme la découverte de soi, la résilience, la quête de vérité, et l'équilibre entre lumière et obscurité.";
-    } else if (lowerQuestion.includes("personnage principal") || lowerQuestion.includes("héroïne")) {
-        response = "Le personnage principal est Elara, une jeune orpheline qui découvre un destin extraordinaire.";
-    } else if (currentChapterId && (lowerQuestion.includes("résumé du chapitre") || lowerQuestion.includes("ce chapitre parle de"))) {
-        const currentChap = content.chapters.find(c => c.id === currentChapterId);
-        if (currentChap) {
-            response = `Le chapitre actuel, "${currentChap.title[currentLanguage]}", peut être résumé ainsi : "${currentChap.summary[currentLanguage]}".`;
+            if (languageSelect.value === 'ar') {
+                arabicText.innerHTML = `<span class="bismillah">${bismillahLine}</span><br>${rest}<br><br><div class="paragraphs">${paragraphs}</div>`;
+                textContent.style.display = 'none';
+                arabicText.style.display = 'block';
+            } else {
+                textContent.innerHTML = `<span class="bismillah">${bismillahLine}</span><br>${rest}<br><br><div class="paragraphs">${paragraphs}</div>`;
+                arabicText.style.display = 'none';
+                textContent.style.display = 'block';
+            }
         } else {
-            response = "Vous n'êtes pas sur un chapitre de lecture pour le moment, ou je n'ai pas d'information.";
+            arabicText.innerHTML = 'Contenu non disponible';
+            textContent.innerHTML = 'Content not available';
+            arabicText.style.display = 'block';
+            textContent.style.display = 'none';
         }
-    } else if (lowerQuestion.includes("mode sombre")) {
-        response = "Vous pouvez activer ou désactiver le mode sombre depuis les icônes sur la page de lecture ou dans les Paramètres.";
-    } else if (lowerQuestion.includes("changer de langue")) {
-        response = "Vous pouvez changer la langue (Français, Anglais, Arabe) via l'icône sur la page de lecture ou dans les Paramètres.";
-    } else if (lowerQuestion.includes("zoom")) {
-        response = "Utilisez les icônes '+' et '-' sur la page de lecture ou dans les Paramètres pour ajuster la taille du texte.";
-    } else if (lowerQuestion.includes("lecture à voix haute")) {
-        response = "L'icône '🔊' sur la page de lecture vous permet d'écouter le chapitre en cours. Elle dispose de plusieurs voix.";
-    } else if (lowerQuestion.includes("favoris")) {
-        response = "L'icône '❤️' sur la page de lecture permet d'ajouter un chapitre à vos favoris. Vous pouvez les retrouver sur la page 'Favoris'.";
-    } else if (lowerQuestion.includes("défilement automatique")) {
-        response = "Sur la page de lecture, les flèches haut et bas sous le texte permettent de défiler automatiquement.";
-    } else if (lowerQuestion.includes("connexion") || lowerQuestion.includes("inscription")) {
-        response = "Vous pouvez vous connecter ou vous inscrire via la page 'Paramètres' pour sauvegarder vos données.";
-    } else if (lowerQuestion.includes("mot de passe")) {
-        response = "Dans la page 'Paramètres', si vous êtes connecté, vous pouvez changer votre mot de passe.";
-    } else if (lowerQuestion.includes("prophétie")) {
-        response = "La prophétie mentionne que 'l'enfant du berceau oublié reviendra, guidé par le symbole d'or, pour réveiller la lumière endormie.'";
     }
 
-    return response;
-}
+    // Sécurité
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey || e.metaKey || e.key === 'PrintScreen') {
+            e.preventDefault();
+        }
+    });
 
-
-// --- Initial Load ---
-document.addEventListener('DOMContentLoaded', () => {
-    loadTheme();
-    loadLanguage();
-    loadFontSize();
-    populateVoices(); // Load voices for speech synthesis
-
-    renderChaptersList(); // Populate the table of contents
-    loadFavorites(); // Load user favorites (will also render them)
-
-    // Initially show the home page
-    showPage('home-page');
+    document.addEventListener('contextmenu', (e) => e.preventDefault());
 });
