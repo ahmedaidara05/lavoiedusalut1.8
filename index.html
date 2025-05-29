@@ -4,164 +4,212 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>La Voie du Salut</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="https://via.placeholder.com/32x32?text=LVS" type="image/x-icon">
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+    <!-- Ajout de Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <div class="overlay"></div>
+    <div class="container" oncontextmenu="return false;" onselectstart="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
+        <!-- Page d'accueil -->
+        <div class="home-page" id="homePage">
+            <header>
+                <img src="logo.png" alt="Logo" class="logo">
+                <h1>La Voie du Salut</h1>
+            </header>
+            <div class="cover">
+                <img src="https://via.placeholder.com/300x400" alt="Couverture">
+                <button class="start-btn">Commencer la lecture</button>
+                <p class="book-description">Découvrez une application élégante et intuitive pour explorer les 44 sourates du Coran, avec des fonctionnalités modernes comme la lecture à haute voix, la personnalisation, et la gestion des favoris. Parfait pour une expérience spirituelle enrichissante et accessible à tous.</p>
+            </div>
+        </div>
 
-    <section id="home-page" class="page active">
-        <div class="home-content">
-            <h1 class="gold-title">LA VOIE DU SALUT</h1>
-            <p class="description-text">Découvrez une histoire captivante, un voyage épique à travers les mystères du destin.</p>
-            <p class="small-description-text">Plongez dans un récit où chaque page révèle de nouvelles vérités et défis inattendus.</p>
-            <button id="start-button" class="modern-button">COMMENCER</button>
+        <!-- Page Sommaire -->
+        <div class="index-page" id="indexPage" style="display: none;">
+            <header>
+                <button class="close-btn"><span>×</span></button>
+                <h1>Index des sourates</h1>
+            </header>
+            <ul>
+                <li data-sura="1"><span class="sura-number">1</span> Surat Al-Fatihah<br>à la Page 1 de la page 1<br>Nombre aya 7 <i class="fas fa-mosque"></i></li>
+                <li data-sura="2"><span class="sura-number">2</span> Surat Al-Baqarah<br>à la Page 2 de la page 49<br>Nombre aya 286 <i class="fas fa-mosque"></i></li>
+                <li data-sura="3"><span class="sura-number">3</span> Surat Aal-E-Imran<br>à la Page 50 de la page 76<br>Nombre aya 200 <i class="fas fa-mosque"></i></li>
+                <li data-sura="4"><span class="sura-number">4</span> Surat An-Nisa<br>à la Page 77 de la page 106<br>Nombre aya 176 <i class="fas fa-mosque"></i></li>
+                <li data-sura="5"><span class="sura-number">5</span> Surat Al-Ma'idah<br>à la Page 106 de la page 127<br>Nombre aya 120 <i class="fas fa-mosque"></i></li>
+                <li data-sura="6"><span class="sura-number">6</span> Surat Al-An'am<br>à la Page 128 de la page 150<br>Nombre aya 165 <i class="fas fa-mosque"></i></li>
+                <li data-sura="7"><span class="sura-number">7</span> Surat Al-A'raf<br>à la Page 151 de la page 176<br>Nombre aya 206 <i class="fas fa-mosque"></i></li>
+                <li data-sura="8"><span class="sura-number">8</span> Surat Al-Anfal<br>à la Page 177 de la page 197<br>Nombre aya 75 <i class="fas fa-mosque"></i></li>
+                <li data-sura="9"><span class="sura-number">9</span> Surat At-Tawbah<br>à la Page 198 de la page 223<br>Nombre aya 129 <i class="fas fa-mosque"></i></li>
+                <li data-sura="10"><span class="sura-number">10</span> Surat Yunus<br>à la Page 224 de la page 247<br>Nombre aya 109 <i class="fas fa-mosque"></i></li>
+                <li data-sura="11"><span class="sura-number">11</span> Surat Hud<br>à la Page 248 de la page 271<br>Nombre aya 123 <i class="fas fa-mosque"></i></li>
+                <li data-sura="12"><span class="sura-number">12</span> Surat Yusuf<br>à la Page 272 de la page 291<br>Nombre aya 111 <i class="fas fa-mosque"></i></li>
+                <li data-sura="13"><span class="sura-number">13</span> Surat Ar-Ra'd<br>à la Page 292 de la page 302<br>Nombre aya 43 <i class="fas fa-mosque"></i></li>
+                <li data-sura="14"><span class="sura-number">14</span> Surat Ibrahim<br>à la Page 303 de la page 313<br>Nombre aya 52 <i class="fas fa-mosque"></i></li>
+                <li data-sura="15"><span class="sura-number">15</span> Surat Al-Hijr<br>à la Page 314 de la page 323<br>Nombre aya 99 <i class="fas fa-mosque"></i></li>
+                <li data-sura="16"><span class="sura-number">16</span> Surat An-Nahl<br>à la Page 324 de la page 346<br>Nombre aya 128 <i class="fas fa-mosque"></i></li>
+                <li data-sura="17"><span class="sura-number">17</span> Surat Al-Isra<br>à la Page 347 de la page 366<br>Nombre aya 111 <i class="fas fa-mosque"></i></li>
+                <li data-sura="18"><span class="sura-number">18</span> Surat Al-Kahf<br>à la Page 367 de la page 387<br>Nombre aya 110 <i class="fas fa-mosque"></i></li>
+                <li data-sura="19"><span class="sura-number">19</span> Surat Maryam<br>à la Page 388 de la page 398<br>Nombre aya 98 <i class="fas fa-mosque"></i></li>
+                <li data-sura="20"><span class="sura-number">20</span> Surat Taha<br>à la Page 399 de la page 414<br>Nombre aya 135 <i class="fas fa-mosque"></i></li>
+                <li data-sura="21"><span class="sura-number">21</span> Surat Al-Anbiya<br>à la Page 415 de la page 430<br>Nombre aya 112 <i class="fas fa-mosque"></i></li>
+                <li data-sura="22"><span class="sura-number">22</span> Surat Al-Hajj<br>à la Page 431 de la page 448<br>Nombre aya 78 <i class="fas fa-mosque"></i></li>
+                <li data-sura="23"><span class="sura-number">23</span> Surat Al-Mu'minun<br>à la Page 449 de la page 462<br>Nombre aya 118 <i class="fas fa-mosque"></i></li>
+                <li data-sura="24"><span class="sura-number">24</span> Surat An-Nur<br>à la Page 463 de la page 478<br>Nombre aya 64 <i class="fas fa-mosque"></i></li>
+                <li data-sura="25"><span class="sura-number">25</span> Surat Al-Furqan<br>à la Page 479 de la page 489<br>Nombre aya 77 <i class="fas fa-mosque"></i></li>
+                <li data-sura="26"><span class="sura-number">26</span> Surat Ash-Shu'ara<br>à la Page 490 de la page 506<br>Nombre aya 227 <i class="fas fa-mosque"></i></li>
+                <li data-sura="27"><span class="sura-number">27</span> Surat An-Naml<br>à la Page 507 de la page 520<br>Nombre aya 93 <i class="fas fa-mosque"></i></li>
+                <li data-sura="28"><span class="sura-number">28</span> Surat Al-Qasas<br>à la Page 521 de la page 536<br>Nombre aya 88 <i class="fas fa-mosque"></i></li>
+                <li data-sura="29"><span class="sura-number">29</span> Surat Al-Ankabut<br>à la Page 537 de la page 549<br>Nombre aya 69 <i class="fas fa-mosque"></i></li>
+                <li data-sura="30"><span class="sura-number">30</span> Surat Ar-Rum<br>à la Page 550 de la page 560<br>Nombre aya 60 <i class="fas fa-mosque"></i></li>
+                <li data-sura="31"><span class="sura-number">31</span> Surat Luqman<br>à la Page 561 de la page 568<br>Nombre aya 34 <i class="fas fa-mosque"></i></li>
+                <li data-sura="32"><span class="sura-number">32</span> Surat As-Sajda<br>à la Page 569 de la page 573<br>Nombre aya 30 <i class="fas fa-mosque"></i></li>
+                <li data-sura="33"><span class="sura-number">33</span> Surat Al-Ahzab<br>à la Page 574 de la page 587<br>Nombre aya 73 <i class="fas fa-mosque"></i></li>
+                <li data-sura="34"><span class="sura-number">34</span> Surat Saba<br>à la Page 588 de la page 599<br>Nombre aya 54 <i class="fas fa-mosque"></i></li>
+                <li data-sura="35"><span class="sura-number">35</span> Surat Fatir<br>à la Page 600 de la page 608<br>Nombre aya 45 <i class="fas fa-mosque"></i></li>
+                <li data-sura="36"><span class="sura-number">36</span> Surat Ya-Sin<br>à la Page 609 de la page 616<br>Nombre aya 83 <i class="fas fa-mosque"></i></li>
+                <li data-sura="37"><span class="sura-number">37</span> Surat As-Saffat<br>à la Page 617 de la page 629<br>Nombre aya 182 <i class="fas fa-mosque"></i></li>
+                <li data-sura="38"><span class="sura-number">38</span> Surat Sad<br>à la Page 630 de la page 638<br>Nombre aya 88 <i class="fas fa-mosque"></i></li>
+                <li data-sura="39"><span class="sura-number">39</span> Surat Az-Zumar<br>à la Page 639 de la page 652<br>Nombre aya 75 <i class="fas fa-mosque"></i></li>
+                <li data-sura="40"><span class="sura-number">40</span> Surat Ghafir<br>à la Page 653 de la page 666<br>Nombre aya 85 <i class="fas fa-mosque"></i></li>
+                <li data-sura="41"><span class="sura-number">41</span> Surat Fussilat<br>à la Page 667 de la page 675<br>Nombre aya 54 <i class="fas fa-mosque"></i></li>
+                <li data-sura="42"><span class="sura-number">42</span> Surat Ash-Shura<br>à la Page 676 de la page 684<br>Nombre aya 53 <i class="fas fa-mosque"></i></li>
+                <li data-sura="43"><span class="sura-number">43</span> Surat Az-Zukhruf<br>à la Page 685 de la page 694<br>Nombre aya 89 <i class="fas fa-mosque"></i></li>
+                <li data-sura="44"><span class="sura-number">44</span> Surat Ad-Dukhan<br>à la Page 695 de la page 699<br>Nombre aya 59 <i class="fas fa-mosque"></i></li>
+            </ul>
         </div>
-    </section>
 
-    <section id="sommaire-page" class="page">
-        <h2 class="gold-title">Sommaire</h2>
-        <div id="chapters-list">
+        <!-- Page de lecture -->
+        <div class="reading-page" id="readingPage" style="display: none;">
+            <header>
+                <img src="logo.png" alt="Logo" class="logo">
+                <h1 id="suraTitle">La Voie du Salut 1</h1>
+                <div class="header-icons">
+                    <button class="icon-btn favorites-btn"><i class="fas fa-star"></i></button>
+                    <button class="icon-btn settings-btn"><i class="fas fa-cog"></i></button>
+                    <button class="icon-btn index-btn"><i class="fas fa-book-open"></i></button>
+                </div>
+            </header>
+            <input type="text" placeholder="Rechercher dans le livre..." class="search-bar" id="searchBar">
+            <div class="search-results" id="searchResults" style="display: none;"></div>
+            <div class="content" id="readingContent">
+                <div class="arabic-text" id="arabicText">
+                    بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ
+                </div>
+                <div class="text-content" id="textContent" style="display: none;">
+                    In the name of Allah, the Most Gracious, the Most Merciful<br>Praise be to Allah, the Lord of all the worlds
+                </div>
+                <div class="navigation-buttons">
+                    <button class="nav-btn prev-btn"><i class="fas fa-arrow-left"></i> Précédent</button>
+                    <button class="nav-btn next-btn">Suivant <i class="fas fa-arrow-right"></i></button>
+                </div>
+                <button class="favorite-btn">☆</button>
+                <button class="customize-btn"><i class="fas fa-paint-brush"></i></button>
+                <button class="ai-btn"><i class="fas fa-robot"></i> Assistant</button>
             </div>
-        <div class="chat-fab-container">
-            <button id="chat-fab-sommaire" class="chat-fab">💬</button>
-        </div>
-    </section>
-
-    <section id="reading-page" class="page">
-        <div class="reading-header">
-            <button id="back-to-sommaire" class="icon-button back-arrow">←</button>
-            <h2 id="reading-chapter-title" class="gold-title"></h2>
-            <div class="reading-controls">
-                <button id="theme-toggle" class="icon-button" title="Mode Sombre/Clair">💡</button>
-                <button id="lang-toggle" class="icon-button" title="Changer la langue">🌐</button>
-                <button id="zoom-in" class="icon-button" title="Zoom avant">➕</button>
-                <button id="zoom-out" class="icon-button" title="Zoom arrière">➖</button>
-                <button id="read-aloud-toggle" class="icon-button" title="Lecture à voix haute">🔊</button>
-                <button id="favorite-chapter" class="icon-button heart-button" title="Ajouter aux favoris">❤️</button>
-            </div>
-        </div>
-        <div id="chapter-content" class="chapter-text" contenteditable="false">
-            </div>
-        <div class="scroll-controls">
-            <button id="scroll-up" class="icon-button" title="Défiler vers le haut">⬆️</button>
-            <button id="scroll-down" class="icon-button" title="Défiler vers le bas">⬇️</button>
-        </div>
-        <div class="chat-fab-container">
-            <button id="chat-fab-reading" class="chat-fab">💬</button>
-        </div>
-    </section>
-
-    <section id="favorites-page" class="page">
-        <h2 class="gold-title">Mes Favoris</h2>
-        <div id="favorites-list">
-            <p id="no-favorites-message" style="display: none;">Vous n'avez pas encore de chapitres favoris.</p>
-            </div>
-        <div class="chat-fab-container">
-            <button id="chat-fab-favorites" class="chat-fab">💬</button>
-        </div>
-    </section>
-
-    <section id="settings-page" class="page">
-        <div class="settings-header">
-            <button id="back-from-settings" class="icon-button back-arrow">←</button>
-            <h2 class="gold-title">Paramètres</h2>
-        </div>
-        <div class="user-profile">
-            <span id="user-name-display">Nom Prénom</span>
-        </div>
-        <div class="settings-section">
-            <h3>Compte</h3>
-            <button id="login-register-button" class="settings-button">Connexion / Inscription</button>
-            <button id="logout-button" class="settings-button" style="display: none;">Déconnexion</button>
-            <button id="change-password-button" class="settings-button" style="display: none;">Changer le mot de passe</button>
-        </div>
-        <div class="settings-section">
-            <h3>Apparence</h3>
-            <div class="setting-item">
-                <span>Mode Sombre/Clair</span>
-                <button id="settings-theme-toggle" class="icon-button">💡</button>
-            </div>
-            <div class="setting-item">
-                <span>Langue</span>
-                <button id="settings-lang-toggle" class="icon-button">🌐</button>
-            </div>
-            <div class="setting-item">
-                <span>Zoom Texte</span>
-                <button id="settings-zoom-in" class="icon-button">➕</button>
-                <button id="settings-zoom-out" class="icon-button">➖</button>
-            </div>
-        </div>
-        <div class="settings-section">
-            <h3>À propos</h3>
-            <div class="setting-item">
-                <span>Informations</span>
-                <a href="#" class="icon-button" title="Informations">ℹ️</a>
-            </div>
-            <div class="setting-item">
-                <span>Nous Rejoindre</span>
-                <div class="social-icons">
-                    <a href="https://facebook.com" target="_blank" title="Facebook"><img src="https://img.icons8.com/ios-filled/24/000000/facebook-new.png" alt="Facebook"></a>
-                    <a href="https://twitter.com" target="_blank" title="Twitter"><img src="https://img.icons8.com/ios-filled/24/000000/twitter.png" alt="Twitter"></a>
-                    <a href="https://instagram.com" target="_blank" title="Instagram"><img src="https://img.icons8.com/ios-filled/24/000000/instagram-new.png" alt="Instagram"></a>
+            <div class="customize-panel" id="customizePanel" style="display: none;">
+                <button class="close-customize-btn"><i class="fas fa-times"></i></button>
+                <div class="color-icons">
+                    <button class="color-btn" style="background: #000;" data-color="#000"></button>
+                    <button class="color-btn" style="background: #d2c9a3;" data-color="#d2c9a3"></button>
+                    <button class="color-btn" style="background: #fff;" data-color="#fff"></button>
+                    <button class="color-btn" style="background: #e0e0e0;" data-color="#e0e0e0"></button>
+                    <button class="color-btn" style="background: #ffff00;" data-color="#ffff00"></button>
+                </div>
+                <div class="option-icons">
+                    <button class="option-btn voice-play-btn"><i class="fas fa-play"></i> Lecture à haute voix</button>
+                    <button class="option-btn zoom-in-btn"><i class="fas fa-plus"></i> Zoom +</button>
+                    <button class="option-btn zoom-out-btn"><i class="fas fa-minus"></i> Zoom -</button>
+                    <button class="option-btn note-btn"><i class="fas fa-sticky-note"></i> Note</button>
                 </div>
             </div>
         </div>
-    </section>
 
-    <div id="chat-modal" class="chat-modal">
-        <div class="chat-modal-content">
-            <span class="close-chat">&times;</span>
-            <h3>Discutez avec l'IA</h3>
-            <div class="chat-history" id="chat-history">
+        <!-- Page Paramètres -->
+        <div class="settings-panel" id="settingsPanel" style="display: none;">
+            <header>
+                <button class="close-btn"><i class="fas fa-arrow-left"></i></button>
+                <h1>Paramètres</h1>
+            </header>
+            <div class="settings-content">
+                <div class="setting">
+                    <label>Langue</label>
+                    <select id="languageSelect">
+                        <option value="fr">Français</option>
+                        <option value="en">English</option>
+                        <option value="ar">العربية</option>
+                    </select>
                 </div>
-            <div class="chat-input-area">
-                <input type="text" id="chat-input" placeholder="Posez votre question...">
-                <button id="send-chat-button">Envoyer</button>
+                <div class="setting">
+                    <label>Thème</label>
+                    <select id="themeSelect">
+                        <option value="light">Clair</option>
+                        <option value="dark">Sombre</option>
+                    </select>
+                </div>
+                <div class="setting">
+                    <label>Police</label>
+                    <select id="fontSelect">
+                        <option value="Amiri">Amiri</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Verdana">Verdana</option>
+                        <option value="Helvetica">Helvetica</option>
+                        <option value="Cambria">Cambria</option>
+                        <option value="Garamond">Garamond</option>
+                        <option value="Lora">Lora</option>
+                        <option value="Roboto">Roboto</option>
+                    </select>
+                </div>
+                <div class="setting">
+                    <label>Taille du texte</label>
+                    <input type="range" id="fontSize" min="12" max="30" value="16">
+                </div>
+                <div class="setting">
+                    <label>Connexion</label>
+                    <input type="text" placeholder="Nom d'utilisateur" id="loginUsername">
+                    <input type="password" placeholder="Mot de passe" id="loginPassword">
+                    <button class="auth-btn">Se connecter</button>
+                </div>
+                <div class="setting">
+                    <label>Inscription</label>
+                    <input type="text" placeholder="Nom d'utilisateur" id="registerUsername">
+                    <input type="password" placeholder="Mot de passe" id="registerPassword">
+                    <button class="auth-btn">S'inscrire</button>
+                </div>
+                <div class="setting">
+                    <label>Liens utiles</label>
+                    <a href="https://www.lavoiedusalut.site" target="_blank" class="link-btn">À Propos</a>
+                    <a href="https://www.lavoiedusalut.site" target="_blank" class="link-btn">Nous Rejoindre</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page Favoris -->
+        <div class="favorites-page" id="favoritesPage" style="display: none;">
+            <header>
+                <button class="close-btn"><i class="fas fa-arrow-left"></i></button>
+                <h1>Favoris</h1>
+            </header>
+            <ul id="favoritesList"></ul>
+        </div>
+
+        <!-- Page Notes -->
+        <div class="notes-page" id="notesPage" style="display: none;">
+            <header>
+                <button class="close-btn"><i class="fas fa-arrow-left"></i></button>
+                <h1>Notes</h1>
+            </header>
+            <div class="notes-content">
+                <input type="text" id="newCategory" placeholder="Nouvelle catégorie">
+                <button class="add-category-btn">Ajouter</button>
+                <div id="categoriesList"></div>
             </div>
         </div>
     </div>
-
-    <div id="auth-modal" class="auth-modal">
-        <div class="auth-modal-content">
-            <span class="close-auth">&times;</span>
-            <h3 id="auth-title">Connexion</h3>
-            <form id="auth-form">
-                <input type="email" id="auth-email" placeholder="Email" required>
-                <input type="password" id="auth-password" placeholder="Mot de passe" required>
-                <button type="submit" id="auth-submit">Se connecter</button>
-                <p class="toggle-auth-mode">
-                    <span id="toggle-to-register">Pas encore de compte ? S'inscrire</span>
-                    <span id="toggle-to-login" style="display: none;">Déjà un compte ? Se connecter</span>
-                </p>
-            </form>
-        </div>
-    </div>
-
-    <nav class="bottom-nav">
-        <a href="#" class="nav-item active" data-target="home-page">
-            <img src="https://img.icons8.com/ios-filled/24/DAA520/home.png" alt="Accueil">
-            <span>Accueil</span>
-        </a>
-        <a href="#" class="nav-item" data-target="sommaire-page">
-            <img src="https://img.icons8.com/ios-filled/24/DAA520/table-of-contents.png" alt="Sommaire">
-            <span>Sommaire</span>
-        </a>
-        <a href="#" class="nav-item" data-target="favorites-page">
-            <img src="https://img.icons8.com/ios-filled/24/DAA520/filled-heart.png" alt="Favoris">
-            <span>Favoris</span>
-        </a>
-        <a href="#" class="nav-item" data-target="settings-page">
-            <img src="https://img.icons8.com/ios-filled/24/DAA520/settings.png" alt="Paramètres">
-            <span>Paramètres</span>
-        </a>
-    </nav>
-
-    <script src="content.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
