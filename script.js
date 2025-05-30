@@ -49,8 +49,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Contenu des 44 sourates en arabe, anglais et français
     const suraContents = {
-        1: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Praise be to Allah, the Lord of all the worlds", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Louange à Allah, Seigneur des mondes" },
-        2: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>ذَٰلِكَ ٱلْكِتَٰبُ لَا رَيْبَ ۖ فِيهِ هُدًى لِّلْمُتَّقِينَ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>This is the Book about which there is no doubt, a guidance for those conscious of Allah", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Ceci est le Livre au sujet duquel il n'y a aucun doute, un guide pour les pieux" },
+        1: {
+            ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ",
+            en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Praise be to Allah, the Lord of all the worlds",
+            fr: "Préambule",
+            paragraphs: {
+                ar: [
+                    "سورة الفاتحة هي أول سورة في القرآن الكريم وتُعتبر مفتاح القرآن. تُسمى أيضًا أم الكتاب لأنها تُلخص المبادئ الأساسية للإيمان والعبادة.",
+                    "تتضمن هذه السورة الدعاء والتضرع إلى الله، حيث يطلب المؤمن الهداية إلى الصراط المستقيم، مما يجعلها ركيزة أساسية في الصلاة اليومية."
+                ],
+                en: [
+                    "Surah Al-Fatiha is the first chapter of the Quran and is considered the key to the Quran. It is also called the Mother of the Book as it encapsulates the fundamental principles of faith and worship.",
+                    "This surah includes a supplication and plea to Allah, where the believer seeks guidance on the straight path, making it a cornerstone of daily prayers."
+                ],
+                fr: [
+                    "Loin de nous l’esprit de dénigrer, mais près de nous l’esprit d’éveiller. Ainsi donc, motivé par l’amour de la vérité et le respect que j’ai envers tous les non-musulmans, je m’adresse à vous (homme de Dieu, frère dans la foi), avec la sincère intention de ne me permettre, après avoir médité la parole de Dieu, de garder le minimum que j’ai acquis. Il est écrit dans le livre de Josué ; Que ce livre de la loi ne s’éloigne pas de ta bouche, et médite-le jour et nuit, afin que tu prennes garde à faire selon tout ce qui y est écrit ; car alors, tu feras réussir tes voies, et alors, tu prospéreras. Dieu dit dans le Coran ; Et Nous avons rendu le Coran facile à retenir. L’un de vous souhaite-t-il apprendre ?",
+                    "Accédez dans un voyage fascinant à travers les méandres de la spiritualité et découvrez la voie du salut qui vous attend. Ce livre est une invitation à la découverte de soi, à l’exploration de notre essence profonde et à la rencontre avec le divin qui sommeille en nous. Contemplez la voie du salut, une voie parsemée d’émerveillement, de transformation et de libération.",
+                    "Laissez-vous porter par des analyses percutantes, des rubriques qui nourrissent l’esprit et des réflexions qui vont au-delà des frontières du temps et de l’espace. Préparez-vous à découvrir des perspectives nouvelles et à vous ouvrir à une réalité plus profonde et plus vraie. Plongez dans la sagesse véritable de l’Islam, laissez-vous guider par une quête spirituelle qui touchera votre cœur et éclairera votre chemin, explorez ses enseignements riches et laissez-vous toucher par la beauté et la lumière qui en émanent, sur la voie du salut.",
+                    "Je vous suggère de vérifier chaque argument afin d’apprécier sa véracité. Je suis responsable de ce que j’écris, mais je ne suis point coupable de la compréhension que vous en faites. Néanmoins, je ne cesserai de vous amadouer, de vous éclaircir et de rendre les propos plus clairs.",
+                    "Plongeons ensemble dans cette pantomime qui n’arrête de nous inviter. Hôtes serons-nous ? Écrivain serai-je ! Je noircis des pages pour orner le chemin et éclairer l’abysse. Assombrir pour ne pas sombrer. Pour extérioriser et évacuer nos gnoses, j’écris en argument et preuve pour nourrir votre méninge et cerner vos tohu-bohu. Certes, il ne sert à rien de lire pour passer, mais lisez pour comprendre.",
+                    "Ouvrez votre esprit et laissez la vérité s’y installer. Ne consommez pas tout enseignement que l’on vous donne et puis on vous recommande de croire aveuglément. Jésus dit ; Ne soyez point comme le cheval, ni comme le mulet, qui sont sans intelligence. On note un passage dans le livre des Actes que les juifs examinaient chaque jour les Écritures pour voir si ce qu’on leur disait était exact. Alors, il faut tout analyser comme il est recommandé dernièrement dans le livre de 1 Thessaloniciens «N’éteignez pas l’esprit, ne méprisez pas les prophéties, mais examinez tout et retenez ce qui est bon. » Que vous soyez en quête de réponses, d’épanouissement spirituel ou simplement d’une connexion plus profonde avec votre être intérieur, ce livre sera votre compagnon fidèle dans cette quête sacrée.",
+                    "La quintessence de ma sagacité scintille les anfractuosités de mon farfadet ahuri. Préparez-vous à être transporté vers des horizons ignorés, où la clarté, la paix et la félicité éternelle vous barguignent. Aérez votre cœur et votre esprit pour comprendre les lignes de ces pages, alors que vous découvrez la voie du salut qui étincèlera votre trajectoire vers une vie saine, remplie de paix, de tranquillité, d’apaisement et de pacification dans ce bas monde ainsi que dans l’au-delà. Lisons donc avec l’esprit du discernement et embrassons la plénitude morale qui nous attend.",
+                    "Avec respect et amour",
+                    "Ahmed Said Aidara"
+                ]
+            }
+        },
+        2: {
+            ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>ذَٰلِكَ ٱلْكِتَٰبُ لَا رَيْبَ ۖ فِيهِ هُدًى لِّلْمُتَّقِينَ",
+            en: "In the name of Allah, the Most Gracious, the Most Merciful<br>This is the Book about which there is no doubt, a guidance for those conscious of Allah",
+            fr: "Préface",
+            paragraphs: {
+                ar: [
+                    "سورة البقرة هي أطول سورة في القرآن الكريم، وهي سورة مدنية تتناول العديد من الأحكام والتشريعات التي تنظم حياة المسلمين.",
+                    "تبدأ السورة بالحديث عن القرآن ككتاب هداية، وتؤكد على أهمية التقوى والإيمان بالله كأساس لفهم الدين وتطبيق تعاليمه."
+                ],
+                en: [
+                    "Surah Al-Baqarah is the longest chapter in the Quran, a Medinan surah that addresses many laws and regulations governing the lives of Muslims.",
+                    "The surah begins by discussing the Quran as a book of guidance, emphasizing the importance of piety and faith in Allah as the foundation for understanding and applying its teachings."
+                ],
+                fr: [
+                    "Louange à Allah, le digne d’être adoré, je témoigne qu’il est la seule divinité. J’atteste que mouhamad et Jésus-Christ sont des messagers de la part d’Allah, que les prières et les bénédictions du Seigneur soient sur eux. Dans ce livre, ce sont les textes sacrés qui parlent. Avec attirance, l’ouvrage de mouhamad haydara s’impose par son degré d’argumentation et de pertinence. Il est bon d’inviter son prochain (non croyant) à devenir musulman, mais il serait meilleur qu’il soit certifié, assuré et textuel.",
+                    "Aujourd’hui, mouhamad haydara donne la chance aux croyants de défendre leur religion, assure la foi de plusieurs musulmans que l’islam est la vérité et nous invite à appeler les non-musulmans à venir consulter l’islam. Dieu dit dans le Coran, sourate 16, verset 125 : « Par la sagesse et la bonne exhortation, appelle (les gens) au sentier de ton Seigneur. Et discute avec eux de la meilleure façon ». Bien sûr, cela peut se faire, on peut ne pas être d’accord et avoir des points de divergence, mais cela n’empêche pas de vivre en paix, en considération et en cohésion sociale.",
+                    "L’auteur ne s’est pas mis ici à une attaque, mais à une étude comparative, à un avertissement. Cela fait de la voie du salut une invitation à son lecteur à entrer dans une sphère sérieuse qu’est la foi. Ce livre dévoile la Vraie Voie qui nous mène au Salut et qui est la clé du paradis.",
+                    "La première partie est consacrée à une révision des bases de l’islam et un petit coup d’œil au christianisme. Il aborde ensuite des interrogations profondes sur l’existence humaine, le sens de notre création, notre destinée, en illuminant majestueusement le chemin vers le Salut. Après cela, arrive la section intéressante pour les Chrétiens. La deuxième et dernière partie est consacrée à la voie du salut composée de plusieurs chapitres, dans lesquels sont inclus un appel et un rappel. Scannons ensemble le Coran et la Bible !",
+                    " Cheikh Abdallah Niass,",
+                    " PDG de l’institut Al Mouyassar"
+                ]
+            }
+        },
         3: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>الم ۝ ٱللَّهُ لَآ إِلَٰهَ إِلَّا هُوَ ٱلْحَىُّ ٱلْقَيُّومُ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>Alif Lam Mim. Allah, there is no deity except Him, the Ever-Living, the Sustainer of existence", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Alif Lam Mim. Allah, il n'y a de divinité sauf Lui, le Vivant, le Subsistant" },
         4: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>يَٰٓأَيُّهَا ٱلنَّاسُ ٱتَّقُوا۟ رَبَّكُمُ ٱلَّذِى خَلَقَكُم", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>O mankind, fear your Lord, who created you from one soul...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Ô hommes, craignez votre Seigneur qui vous a créés d'une seule âme..." },
         5: { ar: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ<br>يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوٓا۟ أَوْفُوا۟ بِٱلْعُقُودِ", en: "In the name of Allah, the Most Gracious, the Most Merciful<br>O you who have believed, fulfill [all] contracts...", fr: "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux<br>Ô vous qui avez cru, remplissez les contrats..." },
