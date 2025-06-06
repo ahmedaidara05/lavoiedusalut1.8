@@ -53,6 +53,56 @@ document.addEventListener('DOMContentLoaded', async () => {
     let currentFontSize = 16;
     let isChatOpen = false;
 
+    // Fonction pour afficher le sommaire
+function showSommaire() {
+    const homePage = document.getElementById('homePage');
+    const indexPage = document.getElementById('index-page');
+    homePage.style.display = 'none';
+    indexPage.style.display = 'block';
+}
+
+// Création des bulles
+for (let i = 0; i < 10; i++) {
+    const bubble = document.createElement('div');
+    bubble.classList.add('bubble');
+    const size = Math.random() * 20 + 10;
+    bubble.style.width = bubble.style.height = `${size}px`;
+    bubble.style.left = `${Math.random() * 100}vw`;
+    bubble.style.animationDuration = `${8 + Math.random() * 6}s`;
+    bubble.style.opacity = Math.random() * 0.5 + 0.2;
+    document.body.appendChild(bubble);
+}
+
+// Initialisation du carrousel
+let currentPage = 1;
+const totalPages = 3;
+
+function showPage(pageNumber) {
+    document.querySelectorAll('.carousel-page').forEach(page => {
+        page.style.display = 'none';
+        page.style.transform = 'translateX(100%)';
+    });
+    const currentPageElement = document.getElementById(`page${pageNumber}`);
+    currentPageElement.style.display = 'block';
+    currentPageElement.style.transform = 'translateX(0)';
+}
+
+document.querySelectorAll('.nav-arrow.left-arrow').forEach(btn => {
+    btn.addEventListener('click', () => {
+        currentPage = currentPage > 1 ? currentPage - 1 : totalPages;
+        showPage(currentPage);
+    });
+});
+
+document.querySelectorAll('.nav-arrow.right-arrow').forEach(btn => {
+    btn.addEventListener('click', () => {
+        currentPage = currentPage < totalPages ? currentPage + 1 : 1;
+        showPage(currentPage);
+    });
+});
+
+showPage(currentPage);
+    
      // Contenu des 44 sourates en arabe, anglais et français (avec 4 paragraphes pour 1-5 et 44)
     const suraContents = {
         1: {
@@ -293,49 +343,55 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const sendBtn = document.getElementById('send');
     if (sendBtn) {
-        sendBtn.onclick = () => {
-            console.log('Bouton Envoyer cliqué');
-            const input = document.getElementById('input');
-            const messages = document.getElementById('messages');
+sendBtn.onclick = () => {
+    console.log('Bouton Envoyer cliqué');
+    const input = document.getElementById('input');
+    const messages = document.getElementById('messages');
 
-            const question = input.value.trim().toLowerCase();
-            if (!question) return;
+    const question = input.value.trim().toLowerCase();
+    if (!question) {
+        console.log('Aucune question entrée');
+        return;
+    }
 
-            messages.innerHTML += `<div class="message user">${input.value}</div>`;
-            input.value = '';
+    messages.innerHTML += `<div class="message user">${input.value}</div>`;
+    input.value = '';
 
-            // Extraire les mots-clés de la question
-            const stopWords = new Set(['le', 'la', 'et', 'de', 'à', 'en', 'un', 'une', 'des', 'du', 'les', 'est', 'ce', 'cette', 'pour', 'dans', 'sur', 'avec', 'par']);
-            const keywords = question.split(/\s+/).filter(word => word.length > 2 && !stopWords.has(word));
+    // Extraire les mots-clés
+    const stopWords = new Set(['le', 'la', 'et', 'de', 'à', 'en', 'un', 'une', 'des', 'du', 'les', 'est', 'ce', 'cette', 'pour', 'dans', 'sur', 'avec', 'par']);
+    const keywords = question.split(/\s+/).filter(word => word.length > 2 && !stopWords.has(word));
+    console.log('Mots-clés extraits :', keywords);
 
-            // Trouver une réponse correspondante
-            let response = 'Désolé, je ne peux répondre qu’aux questions liées à *La Voie du Salut*. Veuillez poser une question sur un chapitre ou un enseignement spécifique.';
-            let bestMatchScore = 0;
+    let response = 'Désolé, je ne peux répondre qu’aux questions liées à *La Voie du Salut*. Veuillez poser une question sur un chapitre ou un enseignement spécifique.';
+    let bestMatchScore = 0;
 
-            chatbotResponses.forEach(entry => {
-                const matchedKeywords = keywords.filter(kw => entry.keywords.some(ekw => kw.includes(ekw.toLowerCase())));
-                const matchScore = matchedKeywords.length;
+    // Vérifier les correspondances avec les mots-clés
+    chatbotResponses.forEach(entry => {
+        const matchedKeywords = keywords.filter(kw =>
+            entry.keywords.some(ekw => kw === ekw.toLowerCase() || ekw.toLowerCase().includes(kw) || kw.includes(ekw.toLowerCase()))
+        );
+        const matchScore = matchedKeywords.length;
+        console.log(`Correspondance pour "${entry.keywords.join(', ')}": ${matchedKeywords.join(', ')} (score: ${matchScore})`);
+        if (matchScore > bestMatchScore) {
+            bestMatchScore = matchScore;
+            response = entry.response;
+        }
+    });
 
-                if (matchScore > bestMatchScore) {
-                    bestMatchScore = matchScore;
-                    response = entry.response;
-                }
-            });
+    // Vérifier si un chapitre est mentionné
+    const chapterMatch = question.match(/chapitre\s+(\d+)/);
+    if (chapterMatch) {
+        const chapterNum = parseInt(chapterMatch[1]);
+        if (suraContents[chapterNum]) {
+            response = `Extrait du chapitre ${chapterNum} (français) : ${suraContents[chapterNum].fr.substring(0, 200)}... Explorez ce chapitre pour plus de détails !`;
+        } else {
+            response = 'Ce chapitre n’est pas disponible. Veuillez vérifier le numéro du chapitre.';
+        }
+    }
 
-            // Vérifier si un chapitre est mentionné
-            const chapterMatch = question.match(/chapitre\s+(\d+)/);
-            if (chapterMatch && !bestMatchScore) {
-                const chapterNum = parseInt(chapterMatch[1]);
-                if (suraContents[chapterNum]) {
-                    response = `Extrait du chapitre ${chapterNum} (français) : ${suraContents[chapterNum].fr.substring(0, 200)}... Explorez ce chapitre pour plus de détails !`;
-                } else {
-                    response = 'Ce chapitre n’est pas disponible. Veuillez vérifier le numéro du chapitre.';
-                }
-            }
-
-            messages.innerHTML += `<div class="message bot">${response}</div>`;
-            messages.scrollTop = messages.scrollHeight;
-        };
+    messages.innerHTML += `<div class="message bot">${response}</div>`;
+    messages.scrollTop = messages.scrollHeight;
+};
     } else {
         console.error('Bouton #send non trouvé dans le DOM');
     }
@@ -601,6 +657,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+    // Fermer customizePanel et chatbot lorsqu'on clique à l'extérieur
+document.addEventListener('click', (e) => {
+    // Gestion de searchResults (déjà existant)
+    if (!searchBar.contains(e.target) && !searchResults.contains(e.target)) {
+        searchResults.style.display = 'none';
+    }
+
+    // Fermer customizePanel si le clic est à l'extérieur
+    if (
+        customizePanel.style.display === 'block' &&
+        !customizePanel.contains(e.target) &&
+        !document.querySelector('.customize-btn').contains(e.target)
+    ) {
+        customizePanel.style.display = 'none';
+    }
+
+    // Fermer chatbot si le clic est à l'extérieur
+    if (
+        isChatOpen &&
+        !document.getElementById('chatbot').contains(e.target) &&
+        !document.querySelector('.ai-btn').contains(e.target)
+    ) {
+        document.getElementById('chatbot').style.display = 'none';
+        isChatOpen = false;
+    }
+});
+
     // Lecture à haute voix
     voicePlayBtn.addEventListener('click', () => {
         if (!synth) {
@@ -752,33 +835,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Charger les paramètres sauvegardés
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        themeSelect.value = savedTheme;
-        document.documentElement.className = savedTheme === 'dark' ? 'dark' : '';
-    }
+// Charger les paramètres sauvegardés
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+    themeSelect.value = savedTheme;
+    document.documentElement.className = savedTheme === 'dark' ? 'dark' : '';
+}
 
-    const savedFont = localStorage.getItem('font');
-    if (savedFont) {
-        fontSelect.value = savedFont;
-        document.body.style.fontFamily = `${savedFont}, sans-serif`;
-        arabicText.style.fontFamily = `${savedFont}, sans-serif`;
-        textContent.style.fontFamily = `${savedFont}, sans-serif`;
-    }
+const savedFont = localStorage.getItem('font');
+if (savedFont) {
+    fontSelect.value = savedFont;
+    document.body.style.fontFamily = `${savedFont}, sans-serif`;
+    arabicText.style.fontFamily = `${savedFont}, sans-serif`;
+    textContent.style.fontFamily = `${savedFont}, sans-serif`;
+} else {
+    fontSelect.value = 'IBM Plex Sans'; // Police par défaut
+    document.body.style.fontFamily = 'IBM Plex Sans, sans-serif';
+    arabicText.style.fontFamily = 'IBM Plex Sans, sans-serif';
+    textContent.style.fontFamily = 'IBM Plex Sans, sans-serif';
+    localStorage.setItem('font', 'IBM Plex Sans'); // Sauvegarder la valeur par défaut
+}
 
-    const savedFontSize = localStorage.getItem('fontSize');
-    if (savedFontSize) {
-        currentFontSize = parseInt(savedFontSize);
-        fontSize.value = currentFontSize;
-        arabicText.style.fontSize = `${savedFontSize}px`;
-        textContent.style.fontSize = `${savedFontSize}px`;
-    }
+const savedFontSize = localStorage.getItem('fontSize');
+if (savedFontSize) {
+    currentFontSize = parseInt(savedFontSize);
+    fontSize.value = currentFontSize;
+    arabicText.style.fontSize = `${savedFontSize}px`;
+    textContent.style.fontSize = `${savedFontSize}px`;
+}
 
-    const savedBgColor = localStorage.getItem('backgroundColor');
-    if (savedBgColor) {
-        document.body.style.backgroundColor = savedBgColor;
-    }
+const savedBgColor = localStorage.getItem('backgroundColor');
+if (savedBgColor) {
+    document.body.style.backgroundColor = savedBgColor;
+} else {
+    document.body.style.backgroundColor = '#d2c9a3'; // Couleur par défaut
+    localStorage.setItem('backgroundColor', '#d2c9a3'); // Sauvegarder la valeur par défaut
+}
 
     // Initialisation
     loadSuraContent();
